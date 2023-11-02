@@ -79,13 +79,17 @@ public abstract class User implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
     private List<Login> login;
 
-    @JsonIgnore
-    @OneToOne(mappedBy = "user")
-    private UserSession userSession;
+//    @JsonIgnore
+//    @OneToOne(mappedBy = "user")
+//    private UserSession userSession;
     
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
-    private List<OtpVerification> otpVerification;
+    private List<UserSession> userSession;
+    
+    @JsonIgnore
+    @OneToOne(mappedBy = "user")
+    private OtpVerification otpVerification;
     
     @JsonIgnore
     @OneToOne(mappedBy = "user")

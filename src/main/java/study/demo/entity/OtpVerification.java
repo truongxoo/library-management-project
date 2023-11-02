@@ -5,9 +5,12 @@ import java.time.Instant;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -26,13 +29,20 @@ public class OtpVerification  implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name = "opt", columnDefinition = "varchar(255)")
-    private String otp;
+    @Column(name = "opt_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer optId;
+    
+    @Column(name = "opt_code", columnDefinition = "varchar(255)")
+    private String otpCode;
 
     @Column(name = "otp_create_time", columnDefinition = "datetime")
     private Instant otpCreateTime = Instant.now();
     
-    @ManyToOne
+    @Column(name = "isExpired", columnDefinition = "boolean default false")
+    private boolean isExpired =false;
+    
+    @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     

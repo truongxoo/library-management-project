@@ -1,5 +1,8 @@
 package study.demo.service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import study.demo.service.dto.request.AuthenticationRequest;
@@ -10,6 +13,6 @@ public interface AuthenticationService {
 	
 	AuthenticationResponseDto authenticate(AuthenticationRequest request) throws UsernameNotFoundException, Exception;
 	
-	AuthenticationResponseDto refreshtoken(TokenRefreshRequest request);
-
+	AuthenticationResponseDto refreshtoken(HttpServletRequest request);
+	
 }

@@ -1,8 +1,7 @@
 package study.demo.service.impl;
 
-import java.util.Optional;
-
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
@@ -13,27 +12,33 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import study.demo.entity.LinkVerification;
 import study.demo.entity.Member;
+import study.demo.entity.OtpVerification;
 import study.demo.entity.User;
 import study.demo.enums.EUserStatus;
 import study.demo.repository.RoleRepository;
 import study.demo.repository.UserRepository;
 import study.demo.service.LinkVerificationService;
+import study.demo.service.OtpVerificationService;
 import study.demo.service.RegisterService;
 import study.demo.service.dto.request.RegisterRequest;
 import study.demo.service.dto.response.MessageResponseDto;
 import study.demo.service.event.OnRegistrationCompleteEvent;
 import study.demo.service.exception.InvalidLinkException;
-import study.demo.service.exception.LinkExpirationException;
+import study.demo.service.exception.VerifyExpirationException;
 import study.demo.service.exception.UserIsUesdException;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(rollbackOn = { RuntimeException.class, Throwable.class })
 public class RegisterSerivceImpl implements RegisterService {
 
     @Value("${app.linkExpirationTime}")
     private Long linkExpirationTime;
 
+    @Value("${app.otpExpirationTime}")
+    private Long otpExpirationTime;
+    
     private final ApplicationEventPublisher eventPublisher;
 
     private final UserRepository userRepository;
@@ -41,6 +46,8 @@ public class RegisterSerivceImpl implements RegisterService {
     private final RoleRepository roleRepository;
 
     private final LinkVerificationService linkVerificationService;
+
+    private final OtpVerificationService otpVerificationService;
 
     private final PasswordEncoder encode;
 
@@ -76,14 +83,16 @@ public class RegisterSerivceImpl implements RegisterService {
         User user = userRepository.save(member);
         log.info("Register success!");
 
-        String appUrl = httpRequest.getContextPath();
+        String appUrl = httpRequest.getRequestURL().toString();
         eventPublisher.publishEvent(new OnRegistrationCompleteEvent(appUrl, user));
-        return new MessageResponseDto("Sign up success! Please login again and explore");
+        return new MessageResponseDto("Sign up success! Check your gmail to complete the verification process");
     }
 
     @Override
-    public MessageResponseDto confirmRegistration(String verifyCode) {
-        return linkVerificationService.findUserByVerificationCode(verifyCode).map(user -> {
+    public MessageResponseDto confirmLink(String verifyCode) {
+        return linkVerificationService.findUserByVerificationCode(verifyCode).map(link -> {
+            checkLinkExpiration(verifyCode);
+            User user = link.getUser();
             user.setUserStatus(EUserStatus.ACTIVATED);
             userRepository.save(user);
             return new MessageResponseDto("Verified successfully, Sign in to explore");
@@ -91,8 +100,39 @@ public class RegisterSerivceImpl implements RegisterService {
     }
 
     public LinkVerification checkLinkExpiration(String verifyCode) {
-        return linkVerificationService.findById(verifyCode).filter(
-                code -> code.getLinkCreateTime().toEpochMilli() + linkExpirationTime > System.currentTimeMillis())
-                .orElseThrow(() -> new LinkExpirationException("Your link has expired, please make a new request"));
+        return linkVerificationService.findByVerificationCode(verifyCode).filter(lvc -> {
+            if (lvc.isExpired()) {
+                throw new VerifyExpirationException("Your link has expired, please make a new request");
+            }
+            Long timeToExpired = lvc.getLinkCreateTime().toEpochMilli() + linkExpirationTime;
+            return timeToExpired > System.currentTimeMillis();
+        }).map(lvc -> {
+            lvc.setExpired(true);
+            return linkVerificationService.saveLinkVerification(lvc);
+        }).orElseThrow(() -> new VerifyExpirationException("Your link has expired, please make a new request"));
+    }
+
+    @Override
+    public MessageResponseDto confirmOtp(String otpCode) {
+        return otpVerificationService.findUserByOtpCode(otpCode).map(otp -> {
+            checkOtpExpiration(otpCode);
+            User user = otp.getUser();
+            user.setUserStatus(EUserStatus.ACTIVATED);
+            userRepository.save(user);
+            return new MessageResponseDto("Verified successfully, Sign in to explore");
+        }).orElseThrow(() -> new InvalidLinkException("Invalid OTP, please make a new request"));
+    }
+
+    public OtpVerification checkOtpExpiration(String otpCode) {
+        return otpVerificationService.findUserByOtpCode(otpCode).filter(otp -> {
+            if (otp.isExpired()) {
+                throw new VerifyExpirationException("Your OTP has expired, please make a new request");
+            }
+            Long timeToExpired = otp.getOtpCreateTime().toEpochMilli() + otpExpirationTime;
+            return timeToExpired > System.currentTimeMillis();
+        }).map(otp -> {
+            otp.setExpired(true);
+            return otpVerificationService.updateOtp(otp);
+        }).orElseThrow(() -> new VerifyExpirationException("Your OTP has expired, please make a new request"));
     }
 }

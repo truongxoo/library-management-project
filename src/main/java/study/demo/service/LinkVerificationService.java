@@ -2,15 +2,19 @@ package study.demo.service;
 
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import study.demo.entity.LinkVerification;
 import study.demo.entity.User;
 
 public interface LinkVerificationService {
     
-    void createVerificationToken(User user, String verificationCode);
+    LinkVerification createVerificationToken(User user);
     
-    Optional<User> findUserByVerificationCode(String verificationCode);
+    Optional<LinkVerification> findUserByVerificationCode(String verificationCode);
     
-    Optional<LinkVerification> findById(String verificationCode);
+    Optional<LinkVerification> findByVerificationCode(String verificationCode);
+    
+    LinkVerification saveLinkVerification(LinkVerification linkVerification);
     
 }

@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -44,8 +45,11 @@ public class UserSession implements Serializable {
     @JsonIgnore
     private Instant createdDate = Instant.now();
 
-    @OneToOne
+//    @OneToOne
+//    @JoinColumn(name = "user_id", nullable = false)
+//    private User user;
+    
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
 }

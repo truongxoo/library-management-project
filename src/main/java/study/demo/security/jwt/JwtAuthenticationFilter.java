@@ -18,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import study.demo.service.exception.JwtExpirationException;
 
 @Slf4j
 @Component
@@ -32,23 +33,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        log.info("Verifying jwt token....." );
         final String authHeader = request.getHeader("Authorization");
         String jwt = null;
         String username = null;
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            
+        // Jwt must not be null and has to start with 'Bearer'
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {  
             jwt = authHeader.substring(7);
             try {
-                username = jwtService.extractUsername(jwt);
-                log.info("Username from token: " + username);
+                username = jwtService.extractUsername(jwt);    // get username from token
             } catch (IllegalArgumentException e) {
                 log.error("Unable to get JWT Token");
             } catch (ExpiredJwtException e) {
                 log.error("JWT Token has expired");
+                throw new JwtExpirationException("JWT Token has expired");
             }
-        } else {
-            log.warn("JWT Token does not begin with Bearer String");
         }
+        // create authentication object for next process
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             if (jwtService.isTokenValid(jwt, userDetails)) {

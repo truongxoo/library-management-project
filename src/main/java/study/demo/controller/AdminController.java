@@ -45,6 +45,7 @@ public class AdminController {
 		log.info("Retrieving all users.......");
 		Page<User> users = userService.findAllUsers(pageIndex);
 		List<UserDto> userl = new ArrayList<>();
+		
 		if (users.getSize() == 0) {
 			log.warn("No user is retrieved");
 			return null;

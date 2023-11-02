@@ -41,15 +41,13 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filerChain(HttpSecurity http) throws Exception {
-//        http
-//            .authorizeHttpRequests()
-//            .antMatchers("/api/auth").permitAll()
-//            .antMatchers("/api/user").permitAll()
-//            .antMatchers("/api/admin").authenticated();
-        
-        http.authorizeRequests(authorizeRequests -> authorizeRequests.anyRequest()
-                .permitAll())
-                .csrf(AbstractHttpConfigurer::disable);
+        http.csrf(csrf -> csrf.disable())
+        .authorizeRequests(authorizeRequests -> authorizeRequests
+                .antMatchers("/api/auth/**","/api/register/**").permitAll()
+                .antMatchers("/api/user/**").hasAuthority("MEMBER")
+                .antMatchers("/api/admin/**").hasAuthority("ADMIN")
+                .anyRequest().authenticated());
+//        http.csrf(AbstractHttpConfigurer::disable);
         http.addFilterBefore(jwtAuthenFilter, UsernamePasswordAuthenticationFilter.class);
         return  http.build();
     }

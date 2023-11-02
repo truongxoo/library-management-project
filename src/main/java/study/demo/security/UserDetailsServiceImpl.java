@@ -38,20 +38,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) {
         log.info("Authenticating...");
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(email + " cannot found"));
+                .orElseThrow(() -> new UserNotFoundException(email + " cannot found"));    // find user with email
       
         if (user.isLocked()) {
             long timeUntilUnlocked = ((user.getLockTime().toEpochMilli() + lockTimeDuration)
                     - (Instant.now().toEpochMilli())) / 60000;
             if (timeUntilUnlocked <= 0) {
-                userService.unlockUser(user);
+                userService.unlockUser(user);    // unlock user if the lock time expires or throw exception
             } else {
                 throw new LockedException("Your account will be unlocked in " + timeUntilUnlocked + " min");
             }
-        } else if (user.getUserStatus() != EUserStatus.ACTIVATED) {
+        } else if (user.getUserStatus() != EUserStatus.ACTIVATED) {    // Only user with ACTIVATED status can login 
             log.error("User " + email + " has been " + user.getUserStatus());
             throw new UserNotActivatedException("User " + email + " has been " + user.getUserStatus());
         }
+        // return new UserDetai instance with username,password and roles
         List<GrantedAuthority> roleNames = List
                 .of((GrantedAuthority) new SimpleGrantedAuthority(user.getRole().getRoleName().name()));
         return new UserDetailImpl(user.getUserId(), user.getEmail(), user.getPassword(), roleNames);

@@ -1,7 +1,6 @@
 package study.demo.controller;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -21,22 +20,31 @@ import study.demo.service.dto.response.MessageResponseDto;
 
 @Slf4j
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/register")
 @RequiredArgsConstructor
 public class RegisterController {
 
     private final RegisterService registerService;
-
-    @PostMapping("/register")
+    
+    // Register member 
+    @PostMapping("")
     public ResponseEntity<MessageResponseDto> register(@RequestBody @Valid RegisterRequest request,HttpServletRequest httpRequest) {
         log.info("Registration is processing...");
         return ResponseEntity.ok(registerService.register(request,httpRequest));
     }
     
-    @GetMapping("/registrationConfirm")
-    public ResponseEntity<Object> register(@RequestParam("verifyCode") String verifyCode,WebRequest request) {
-        log.info("Verification is processing...");
-        return ResponseEntity.ok(registerService.confirmRegistration(verifyCode));
+    // Confirm with link to activate account
+    @GetMapping("/confirmationLink")
+    public ResponseEntity<Object> confirmByLink(@RequestParam("verificationCode") String verifyCode,WebRequest request) {
+        log.info("Confirmation with link is processing...");
+        return ResponseEntity.ok(registerService.confirmLink(verifyCode));
+    }
+    
+    // Confirm with OTP to activate account
+    @GetMapping("/confirmationOtp")
+    public ResponseEntity<Object> confirmByOtp(@RequestParam("otp") String otpCode,WebRequest request) {
+        log.info("Confirmation with OTP is processing...");
+        return ResponseEntity.ok(registerService.confirmOtp(otpCode));
     }
 
 }

@@ -1,6 +1,8 @@
 package study.demo.service.impl;
 
+import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.transaction.Transactional;
 
@@ -19,22 +21,27 @@ public class LinkVerificationServiceImpl implements LinkVerificationService {
     private final LinkVerificationRepository linkVerificationRepository;
 
     @Override
-    public void createVerificationToken(User user, String verificationCode) {
-        linkVerificationRepository.save(LinkVerification
-                .builder()
-                .user(user)
-                .verificationCode(verificationCode)
-                .build());
+    public LinkVerification createVerificationToken(User user) {
+        return linkVerificationRepository
+                .save(LinkVerification.builder()
+                        .linkCreateTime(Instant.now())
+                        .user(user).verificationCode(UUID.randomUUID().toString())
+                        .build());
     }
 
     @Override
-    public Optional<User> findUserByVerificationCode(String verificationCode) {
-        return linkVerificationRepository.findUserById(verificationCode) ;
+    public Optional<LinkVerification> findUserByVerificationCode(String verificationCode) {
+        return linkVerificationRepository.findUserByVerificationCode(verificationCode);
     }
 
     @Override
-    public Optional<LinkVerification> findById(String verificationCode) {
-        return Optional.empty();
+    public Optional<LinkVerification> findByVerificationCode(String verificationCode) {
+        return linkVerificationRepository.findByVerificationCode(verificationCode);
+    }
+
+    @Override
+    public LinkVerification saveLinkVerification(LinkVerification linkVerification) {
+        return linkVerificationRepository.save(linkVerification);
     }
 
 }
