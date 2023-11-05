@@ -7,6 +7,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
@@ -21,6 +22,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
@@ -34,7 +37,7 @@ import study.demo.enums.EUserStatus;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class User implements Serializable {
+public abstract class User extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -80,12 +83,12 @@ public abstract class User implements Serializable {
     private List<Login> login;
 
     @JsonIgnore
-    @OneToOne(mappedBy = "user")
-    private UserSession userSession;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
+    private List<UserSession> userSession;
     
     @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
-    private List<OtpVerification> otpVerification;
+    @OneToOne(mappedBy = "user")
+    private OtpVerification otpVerification;
     
     @JsonIgnore
     @OneToOne(mappedBy = "user")

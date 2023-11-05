@@ -9,9 +9,12 @@ import lombok.Data;
 
 @Data
 @Builder
-public class AuthenticationRequest {
+public class AuthenticationRequestDto {
    
+    @Email
+    @NotBlank(message = "{email.notblank}")
     private String email;
    
+    @NotBlank(message = "{password.notblank}")
     private String password;
 }

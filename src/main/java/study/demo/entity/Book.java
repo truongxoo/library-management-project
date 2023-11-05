@@ -30,7 +30,6 @@ import study.demo.enums.EBookStatus;
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class Book implements Serializable {
 
     private static final long serialVersionUID = 1L;

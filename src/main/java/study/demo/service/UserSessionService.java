@@ -3,17 +3,16 @@ package study.demo.service;
 import java.util.Optional;
 
 import study.demo.entity.UserSession;
-import study.demo.service.exception.TokenRefreshException;
 
 public interface UserSessionService {
 	
-	Optional<UserSession> findByUserId(Integer userSessionId);
+	Optional<UserSession> findUserSessionByUserName(String userSessionId);
 	
-	Optional<UserSession> findByUserSessionId(String userSessionID);
+	Optional<UserSession> findByUserSessionId(String userSessionId);
 	
-//	Optional<UserSession> verifyExpiration(String refreshToken) throws TokenRefreshException;
+	UserSession verifyExpiration(String refreshToken);
 	
-	int deleteByUserId(Integer userId);
+	int deleteByUserSessionId(String userSessionId);
 	
-	UserSession save(UserSession userSession);
+	UserSession save(UserSession userSessionId);
 }

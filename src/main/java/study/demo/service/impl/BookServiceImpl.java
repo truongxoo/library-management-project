@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import study.demo.entity.Book;
 import study.demo.repository.BookRepository;
 import study.demo.service.BookService;
-import study.demo.service.dto.request.BookFilter;
+import study.demo.service.dto.request.BookFilterDto;
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class BookServiceImpl implements BookService {
 //	}
 
 	@Override
-	public Page<Book> findBooksByFilter(BookFilter bookFilter, Integer pageIndex) {
+	public Page<Book> findBooksByFilter(BookFilterDto bookFilter, Integer pageIndex) {
 		
 		return null;
 	}

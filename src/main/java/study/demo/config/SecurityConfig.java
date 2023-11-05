@@ -8,7 +8,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -17,7 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import lombok.RequiredArgsConstructor;
 import study.demo.security.UserDetailsServiceImpl;
 import study.demo.security.jwt.JwtAuthenticationFilter;
-
 
 @Configuration
 @EnableWebSecurity
@@ -32,7 +30,7 @@ public class SecurityConfig {
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
+
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
@@ -41,17 +39,13 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filerChain(HttpSecurity http) throws Exception {
-//        http
-//            .authorizeHttpRequests()
-//            .antMatchers("/api/auth").permitAll()
-//            .antMatchers("/api/user").permitAll()
-//            .antMatchers("/api/admin").authenticated();
-        
-        http.authorizeRequests(authorizeRequests -> authorizeRequests.anyRequest()
-                .permitAll())
-                .csrf(AbstractHttpConfigurer::disable);
+        http.csrf(csrf -> csrf.disable()).authorizeRequests(authorizeRequests -> authorizeRequests
+                .antMatchers("/api/auth/**", "/api/register/**").permitAll()
+                .antMatchers("/api/user/**").hasRole("MEMBER")
+                .antMatchers("/api/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated());
         http.addFilterBefore(jwtAuthenFilter, UsernamePasswordAuthenticationFilter.class);
-        return  http.build();
+        return http.build();
     }
 
     @Bean
@@ -61,4 +55,5 @@ public class SecurityConfig {
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
+
 }

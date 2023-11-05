@@ -2,10 +2,9 @@ package study.demo.security;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,40 +17,47 @@ import lombok.extern.slf4j.Slf4j;
 import study.demo.entity.User;
 import study.demo.enums.EUserStatus;
 import study.demo.repository.UserRepository;
-import study.demo.service.exception.UserNotActivatedException;
-import study.demo.service.exception.UserNotFoundException;
-import study.demo.service.impl.UserServiceImpl;
+import study.demo.service.UserService;
+import study.demo.service.exception.DataInvalidException;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    @Value("${app.lockTimeDuration}")
-    private long lockTimeDuration;
+    private final UserRepository userRepo;
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    private final UserServiceImpl userService;
+    private final MessageSource messages;
 
+    /*
+     * override UserDetailsService method for retrieving a username, a password, and
+     * other attributes for authenticating
+     */
     @Override
-    public UserDetails loadUserByUsername(String email) {
-        log.info("Authenticating...");
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(email + " cannot found"));
-      
+    public UserDetails loadUserByUsername(String userName) {
+
+        log.info("Authenticating "+userName);
+        User user = userRepo.findByEmail(userName).orElseThrow(() -> new DataInvalidException(
+                messages.getMessage("user.notfound", new Object[] { userName }, Locale.ENGLISH))); // find user
+                                                                                                       // with email
         if (user.isLocked()) {
-            long timeUntilUnlocked = ((user.getLockTime().toEpochMilli() + lockTimeDuration)
-                    - (Instant.now().toEpochMilli())) / 60000;
-            if (timeUntilUnlocked <= 0) {
-                userService.unlockUser(user);
+            long timeUntilUnlocked = ((user.getLockTime().toEpochMilli())
+                    - (System.currentTimeMillis()))/60000;    // remaining lock time
+            if (user.getLockTime().isBefore(Instant.now())) {
+                userService.unlockUser(user);    // unlock user if the lock time expires or throw exception
             } else {
-                throw new LockedException("Your account will be unlocked in " + timeUntilUnlocked + " min");
+                throw new LockedException(
+                        messages.getMessage("lock.time", new Object[] { timeUntilUnlocked }, Locale.ENGLISH));
             }
-        } else if (user.getUserStatus() != EUserStatus.ACTIVATED) {
-            log.error("User " + email + " has been " + user.getUserStatus());
-            throw new UserNotActivatedException("User " + email + " has been " + user.getUserStatus());
+        } else if (user.getUserStatus() != EUserStatus.ACTIVATED) {    // only user with ACTIVATED status can login
+            log.error("User " + userName + " has been " + user.getUserStatus());
+            throw new DataInvalidException(messages.getMessage("user.notactivated",
+                    new Object[] { userName, user.getUserStatus() }, Locale.getDefault()));
         }
+
+        // return new UserDetai instance with username,password and roles
         List<GrantedAuthority> roleNames = List
                 .of((GrantedAuthority) new SimpleGrantedAuthority(user.getRole().getRoleName().name()));
         return new UserDetailImpl(user.getUserId(), user.getEmail(), user.getPassword(), roleNames);

@@ -11,10 +11,9 @@ import study.demo.entity.User;
 @Repository
 public interface LinkVerificationRepository extends JpaRepository<LinkVerification, String>{
     
-    Optional<LinkVerification> findById(String id);
-    
+    Optional<LinkVerification> findByVerificationCode(String verificationCode);
+
     Optional<LinkVerification> findByUser(User user);
-    
-    Optional<User> findUserById(String verificationCode);
-    
+
+    Optional<LinkVerification> findUserByVerificationCode(String verificationCode);
 }

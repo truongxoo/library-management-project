@@ -1,13 +1,13 @@
 package study.demo.service;
 
+import study.demo.entity.OtpVerification;
 import study.demo.entity.User;
 
 public interface OtpVerificationService {
+
+    OtpVerification createOtpVerification(User user);
     
-     void generateOneTimePassword(User User);
-        
-     void sendOTPEmail(User User, String OTP);
- 
-     void clearOTP(User User);
- 
+    OtpVerification updateOtpVerification(OtpVerification otpVerif,User user);
+    
+    
 }

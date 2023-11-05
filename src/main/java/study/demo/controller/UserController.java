@@ -29,7 +29,9 @@ public class UserController {
     private final ModelMapper modelMapper;
 
     private final BookService bookService;
-
+    
+    
+    // Get list of books    
     @GetMapping("/books")
     public List<BookDto> findAllBooks(@RequestParam(name = "page", required = false) Integer pageIndex) {
 
