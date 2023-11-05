@@ -8,7 +8,7 @@ import study.demo.enums.EBookStatus;
 
 @Data
 @Builder
-public class BookFilter {
+public class BookFilterDto {
 
     private Integer bookId;
 

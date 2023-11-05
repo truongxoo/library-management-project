@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import study.demo.entity.OtpVerification;
 import study.demo.entity.User;
 
-public interface OtpRepository extends JpaRepository<OtpVerification, Integer>{
+public interface OtpVerificationRepository extends JpaRepository<OtpVerification, Integer>{
 
     Optional<OtpVerification> findByOtpCode(String otpCode);
 

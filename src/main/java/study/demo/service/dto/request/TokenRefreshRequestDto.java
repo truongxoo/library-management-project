@@ -8,10 +8,8 @@ import lombok.Data;
 
 @Data
 @Builder
-public class TokenRefreshRequest {
+public class TokenRefreshRequestDto {
 
-    private String token;
-    
     @NotBlank
     private String refreshToken;
 

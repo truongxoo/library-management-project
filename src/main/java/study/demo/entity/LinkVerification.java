@@ -41,10 +41,10 @@ public class LinkVerification implements Serializable {
     
     @CreatedDate
     @Column(name = "link_create_time", columnDefinition = "datetime")
-    private Instant linkCreateTime = Instant.now();
+    private Instant createDate = Instant.now();
     
-    @Column(name = "isExpired", columnDefinition = "boolean default false")
-    private boolean isExpired =false;
+    @Column(name = "isExpired", columnDefinition = "datetime")
+    private Instant expiryDate;
     
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)

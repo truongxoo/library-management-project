@@ -18,18 +18,19 @@ import study.demo.enums.EUserStatus;
 
 @Data
 @Builder
-public class RegisterRequest {
+public class RegisterRequestDto {
 
     @Email
-    @NotBlank(message = "Email is mandatory")
+    @NotBlank(message = "{email.notblank}")
     private String email;
 
-    @NotBlank(message = "Password is mandatory")
-    @Length(min = 8, message = "Password must have at least 8 characters")
+    @NotBlank(message = "{password.notblank}")
+    @Length(min = 8, message = "{password.atleast8char}")
     private String password;
-
+    
+    @NotBlank(message = "{firstName.notblank}")
     private String firstName;
-
+    
     private String lastName;
 
     private EGender gender;

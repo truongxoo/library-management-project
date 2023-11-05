@@ -8,7 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -34,9 +33,6 @@ public class UserSession implements Serializable {
     @Column(name = "user_session_id", columnDefinition = "varchar(255)")
     private String userSessionId;
     
-    @Column(name = "is_refresh_token", columnDefinition = "boolean default true")
-    private boolean isRefreshToken;
-    
     @Column(name = "is_expired", columnDefinition = "boolean default false")
     private boolean isExpired;
     
@@ -44,10 +40,6 @@ public class UserSession implements Serializable {
     @Column(name = "created_date", updatable = false)
     @JsonIgnore
     private Instant createdDate = Instant.now();
-
-//    @OneToOne
-//    @JoinColumn(name = "user_id", nullable = false)
-//    private User user;
     
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

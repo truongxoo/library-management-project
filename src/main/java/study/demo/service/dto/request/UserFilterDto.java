@@ -8,7 +8,7 @@ import study.demo.enums.EGender;
 
 @Data
 @Builder
-public class UserFilter {
+public class UserFilterDto {
 
     private String email;
     

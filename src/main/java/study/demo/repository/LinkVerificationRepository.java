@@ -16,5 +16,4 @@ public interface LinkVerificationRepository extends JpaRepository<LinkVerificati
     Optional<LinkVerification> findByUser(User user);
 
     Optional<LinkVerification> findUserByVerificationCode(String verificationCode);
-
 }

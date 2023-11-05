@@ -20,7 +20,7 @@ import study.demo.entity.User;
 import study.demo.repository.UserRepository;
 import study.demo.service.BookService;
 import study.demo.service.UserService;
-import study.demo.service.dto.request.UserFilter;
+import study.demo.service.dto.request.UserFilterDto;
 import study.demo.service.dto.response.UserDto;
 
 @Slf4j
@@ -28,8 +28,6 @@ import study.demo.service.dto.response.UserDto;
 @RestController
 @RequiredArgsConstructor
 public class AdminController {
-
-	private Logger log = LoggerFactory.getLogger(AdminController.class);
 
 	private final UserService userService;
 
@@ -55,7 +53,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/users/filter")
-	public List<UserDto> findUserByFilter(@RequestBody UserFilter userFilter,
+	public List<UserDto> findUserByFilter(@RequestBody UserFilterDto userFilter,
 			@RequestParam(name = "page", required = false) Integer pageIndex) {
 
 		log.info("Retrieving users that match the criteria");

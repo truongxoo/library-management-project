@@ -13,6 +13,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.springframework.data.annotation.CreatedDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,11 +38,12 @@ public class OtpVerification  implements Serializable {
     @Column(name = "opt_code", columnDefinition = "varchar(255)")
     private String otpCode;
 
+    @CreatedDate
     @Column(name = "otp_create_time", columnDefinition = "datetime")
-    private Instant otpCreateTime = Instant.now();
-    
-    @Column(name = "isExpired", columnDefinition = "boolean default false")
-    private boolean isExpired =false;
+    private Instant createTime = Instant.now();
+   
+    @Column(name = "isExpired", columnDefinition = "datetime")
+    private Instant expiryDate;
     
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)

@@ -1,10 +1,12 @@
 package study.demo.service.impl;
 
+import java.util.Locale;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -12,11 +14,11 @@ import study.demo.entity.UserSession;
 import study.demo.repository.UserSessionRepository;
 import study.demo.security.jwt.JwtService;
 import study.demo.service.UserSessionService;
-import study.demo.service.exception.TokenRefreshException;
+import study.demo.service.exception.DataInvalidException;
+import study.demo.service.exception.VerifyExpirationException;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(rollbackOn = RuntimeException.class)
 public class UserSessionServiceImpl implements UserSessionService {
 
     @Value("${app.jwtRefreshExpirationMs}")
@@ -25,21 +27,25 @@ public class UserSessionServiceImpl implements UserSessionService {
     private final UserSessionRepository userSessionRepository;
 
     private final JwtService jwtService;
+    
+    private final MessageSource messages;
 
     @Override
-    public Optional<UserSession> verifyExpiration(String userSessionId) throws TokenRefreshException {
-        Optional<UserSession> userSession = userSessionRepository.findById(userSessionId);
-        if(userSession.get().isExpired()) {
-            throw new TokenRefreshException("Refresh token was expired. Please make a new signin request");
+    public UserSession verifyExpiration(String userSessionId) throws VerifyExpirationException {
+        
+        UserSession userSession = userSessionRepository.findById(userSessionId)
+                .orElseThrow(()-> new DataInvalidException(messages.getMessage("refreshtoken.notfound", null, null)));
+        if(userSession.isExpired()) {
+            throw new VerifyExpirationException(messages.getMessage("refreshtoken.expired", null, Locale.getDefault()));
         }
-        userSession.filter(uss -> !uss.isExpired())
-        .map(UserSession::getCreatedDate).filter(
-                exiredDate -> (exiredDate.toEpochMilli() + refreshTokenDurationMs) <= System.currentTimeMillis())
-                .ifPresent(u -> {
-                    userSession.get()
-                    .setExpired(true);
-                    userSessionRepository.save(userSession.get());
-                    throw new TokenRefreshException("Refresh token was expired. Please make a new signin request");
+        Optional.of(userSession)
+            .map(UserSession::getCreatedDate)
+            .filter(exiredDate -> (
+                    exiredDate.toEpochMilli() + refreshTokenDurationMs) <= System.currentTimeMillis())
+            .ifPresent(u -> {
+                    userSession.setExpired(true);
+                    userSessionRepository.save(userSession);
+                    throw new VerifyExpirationException(messages.getMessage("refreshtoken.expired", null, null));
                 });
         return userSession;
     }
@@ -65,7 +71,7 @@ public class UserSessionServiceImpl implements UserSessionService {
             uss.setExpired(true);
             userSessionRepository.save(uss);
             return 1;
-        }).orElseThrow(() -> new TokenRefreshException("Invalid token"));
+        }).orElseThrow(() -> new VerifyExpirationException("Invalid token"));
     }
 
 }

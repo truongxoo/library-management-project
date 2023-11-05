@@ -13,24 +13,28 @@ import lombok.RequiredArgsConstructor;
 import study.demo.security.jwt.JwtService;
 import study.demo.service.LogoutService;
 import study.demo.service.UserSessionService;
+import study.demo.service.dto.response.MessageResponseDto;
 
 @Service
 @RequiredArgsConstructor
 public class LogoutServiceImpl implements LogoutService {
-    
+
     private final UserSessionService userSessionService;
-    
+
     private final JwtService jwtService;
 
     @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response) {
-        String jwt =  request.getHeader("Authorization").substring(7);
-        String jti= jwtService.extractJti(jwt) ;
+    public MessageResponseDto logout(HttpServletRequest request, HttpServletResponse response) {
+
+        String jwt = request.getHeader("Authorization").substring(7);
+        String jti = jwtService.extractJti(jwt);
         userSessionService.deleteByUserSessionId(jti);
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
             SecurityContextHolder.getContext().setAuthentication(null);
         }
+        return new MessageResponseDto("{logout.success}");
     }
 }

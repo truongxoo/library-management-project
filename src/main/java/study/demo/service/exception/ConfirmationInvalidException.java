@@ -1,10 +1,10 @@
 package study.demo.service.exception;
 
-public class InvalidLinkException extends RuntimeException{
+public class ConfirmationInvalidException extends RuntimeException{
 
     private static final long serialVersionUID = 1L;
     
-    public InvalidLinkException(String message) {
+    public ConfirmationInvalidException(String message) {
         super(message);
     }
 
