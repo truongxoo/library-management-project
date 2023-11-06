@@ -35,6 +35,7 @@ import study.demo.service.exception.VerifyExpirationException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
@@ -58,6 +59,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (authenticate(request.getEmail(), request.getPassword())) {
             
             userDetails = (UserDetailImpl) userDetailsService.loadUserByUsername(request.getEmail());
+            if(userDetails==null) {
+                return new AuthenticationResponseDto("Please change your password first",null);
+            }
             final String accessToken = jwtService.generateTokenFromUserName(userDetails.getUsername());
             final String refreshToken = jwtService.generateRefreshToken(accessToken);    // access token and refresh token
                                                                                          // have the same jti
@@ -91,6 +95,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationResponseDto refreshtoken(HttpServletRequest request) {
         
         String jwt = request.getHeader("Authorization").substring(7);
+        if(!jwtService.isRefrehToken(jwt)) {    // ~Boolean.FALSE.equals(jwtService.isRefrehToken(jwt))
+            throw new DataInvalidException(message.getMessage("isnot.refreshtoken", null,Locale.getDefault()));
+        }
         String jti = jwtService.extractJti(jwt);
         
         return userSessionService.findByUserSessionId(jti)    

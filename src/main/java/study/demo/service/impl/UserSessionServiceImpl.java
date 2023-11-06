@@ -68,8 +68,9 @@ public class UserSessionServiceImpl implements UserSessionService {
     @Override
     public int deleteByUserSessionId(String userSessionId) {
         return userSessionRepository.findById(userSessionId).map(uss -> {
-            uss.setExpired(true);
-            userSessionRepository.save(uss);
+//            uss.setExpired(true);
+//            userSessionRepository.save(uss);
+             userSessionRepository.delete(uss);
             return 1;
         }).orElseThrow(() -> new VerifyExpirationException("Invalid token"));
     }
