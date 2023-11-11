@@ -1,8 +1,11 @@
 package study.demo.service.impl;
 
+import java.util.Locale;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -22,6 +25,8 @@ public class LogoutServiceImpl implements LogoutService {
     private final UserSessionService userSessionService;
 
     private final JwtService jwtService;
+    
+    private final MessageSource messages;
 
     @Override
     public MessageResponseDto logout(HttpServletRequest request, HttpServletResponse response) {
@@ -35,6 +40,6 @@ public class LogoutServiceImpl implements LogoutService {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
             SecurityContextHolder.getContext().setAuthentication(null);
         }
-        return new MessageResponseDto("{logout.success}");
+        return new MessageResponseDto(messages.getMessage("logout.success", null,Locale.getDefault()));
     }
 }

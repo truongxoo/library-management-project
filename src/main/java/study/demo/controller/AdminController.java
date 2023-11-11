@@ -41,10 +41,10 @@ public class AdminController {
 	public List<UserDto> findAllUsers(@RequestParam(name = "page", required = false) Integer pageIndex) {
 
 		log.info("Retrieving all users.......");
-		Page<User> users = userService.findAllUsers(pageIndex);
+		List<User> users = userRepository.findAll();
 		List<UserDto> userl = new ArrayList<>();
 		
-		if (users.getSize() == 0) {
+		if (users.size() == 0) {
 			log.warn("No user is retrieved");
 			return null;
 		}

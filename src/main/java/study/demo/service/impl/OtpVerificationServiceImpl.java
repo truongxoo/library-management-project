@@ -3,6 +3,8 @@ package study.demo.service.impl;
 import java.time.Instant;
 import java.util.Random;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ import study.demo.service.OtpVerificationService;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class OtpVerificationServiceImpl implements OtpVerificationService {
 
     @Value("${app.otpExpirationTime}")

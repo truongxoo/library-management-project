@@ -38,13 +38,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String userName) {
 
-        log.info("Authenticating "+userName);
+        log.info("Authenticating " + userName);
         User user = userRepo.findByEmail(userName).orElseThrow(() -> new DataInvalidException(
                 messages.getMessage("user.notfound", new Object[] { userName }, Locale.ENGLISH))); // find user
-                                                                                                       // with email
+                                                                                                   // with email
         if (user.isLocked()) {
-            long timeUntilUnlocked = ((user.getLockTime().toEpochMilli())
-                    - (System.currentTimeMillis()))/60000;    // remaining lock time
+            long timeUntilUnlocked = ((user.getLockTime().toEpochMilli()) - (System.currentTimeMillis())) / 60000; // remaining
+                                                                                                                   // time
+
             if (user.getLockTime().isBefore(Instant.now())) {
                 userService.unlockUser(user);    // unlock user if the lock time expires or throw exception
             } else {

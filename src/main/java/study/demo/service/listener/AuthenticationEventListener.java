@@ -68,8 +68,9 @@ public class AuthenticationEventListener {
     @EventListener
     public void authenticationSuccess(AuthenticationSuccessEvent event) {
         UserDetails userDetails = (UserDetails) event.getAuthentication().getPrincipal();
-        User user = userRepo.findByEmail(userDetails.getUsername()).orElseThrow(() -> new DataInvalidException(
-                messages.getMessage("user.notfound", new Object[] { userDetails.getUsername() }, Locale.getDefault())));
+        User user = userRepo.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new DataInvalidException(messages.getMessage(
+                        "user.notfound", new Object[] { userDetails.getUsername() }, Locale.getDefault())));
         if (user.getFailedAttempt() > 0) {
             userService.unlockUser(user);
         }
