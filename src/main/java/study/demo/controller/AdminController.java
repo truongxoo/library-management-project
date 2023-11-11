@@ -33,23 +33,12 @@ public class AdminController {
 
 	private final BookService bookService;
 
-	private final ModelMapper modelMapper;
-	
 	private final UserRepository userRepository;
 
 	@GetMapping("/users")
-	public List<UserDto> findAllUsers(@RequestParam(name = "page", required = false) Integer pageIndex) {
-
+	public List<UserDto> findAllUsers(@RequestParam(name = "page", required = false) Integer pageIndex,@RequestParam(name = "record", required = false) Integer recordPerPage) {
 		log.info("Retrieving all users.......");
-		List<User> users = userRepository.findAll();
-		List<UserDto> userl = new ArrayList<>();
-		
-		if (users.size() == 0) {
-			log.warn("No user is retrieved");
-			return null;
-		}
-		return users.stream().map(user -> modelMapper.map(user, UserDto.class)).collect(Collectors.toList());
-
+		return userService.findAllUsers(pageIndex, recordPerPage);
 	}
 
 	@GetMapping("/users/filter")
@@ -58,13 +47,11 @@ public class AdminController {
 
 		log.info("Retrieving users that match the criteria");
 		Page<User> users = userService.findUsersByFilter(userFilter, null);
-
 		if (users.isEmpty()) {
 			log.warn("No user match");
 			return null;
 		}
-		return users.stream().map(user -> modelMapper.map(users, UserDto.class)).collect(Collectors.toList());
-
+		return null;
 	}
 
 //	@GetMapping("/books")

@@ -3,11 +3,11 @@ package study.demo.service.impl;
 import java.util.Locale;
 import java.util.Optional;
 
-import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import study.demo.entity.UserSession;
@@ -19,6 +19,7 @@ import study.demo.service.exception.VerifyExpirationException;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserSessionServiceImpl implements UserSessionService {
 
     @Value("${app.jwtRefreshExpirationMs}")
@@ -51,6 +52,7 @@ public class UserSessionServiceImpl implements UserSessionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<UserSession> findByUserSessionId(String userSessionID) {
         return userSessionRepository.findById(userSessionID);
     }
@@ -72,7 +74,7 @@ public class UserSessionServiceImpl implements UserSessionService {
 //            userSessionRepository.save(uss);
              userSessionRepository.delete(uss);
             return 1;
-        }).orElseThrow(() -> new VerifyExpirationException("Invalid token"));
+        }).orElseThrow(() -> new VerifyExpirationException(messages.getMessage("token.invalid", null, Locale.getDefault())));
     }
 
 }

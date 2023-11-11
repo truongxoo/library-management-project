@@ -36,24 +36,27 @@ import study.demo.service.UserSessionService;
 import study.demo.service.dto.response.ExceptionMessageDto;
 import study.demo.service.exception.DataInvalidException;
 import study.demo.service.exception.VerifyExpirationException;
+import study.demo.utils.ResponseExceptionUtil;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private final ResponseExceptionUtil responseExceptionUtil;
+
     private final UserDetailsService userDetailsService;
 
     private final UserSessionService userSessionService;
 
-    private final JwtService jwtService;
-
     private final MessageSource messages;
+
+    private final JwtService jwtService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
+        
         log.info("Verifying jwt token.....");
         final String authHeader = request.getHeader("Authorization");
         String jwt = null;
@@ -67,13 +70,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 jwt = authHeader.substring(7);
                 username = jwtService.extractUsername(jwt); // get username from token
                 jti = jwtService.extractJti(jwt);
+                
                 userSessionService.findByUserSessionId(jti).orElseThrow(() -> new DataInvalidException(
                         messages.getMessage("not.authenticate", null, Locale.getDefault())));
 
                 // create authentication object for next process
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) { // ??
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                    
+
                     if (jwtService.isTokenValid(jwt, userDetails)) {
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities());
@@ -85,24 +89,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
             log.error("JWT Token has expired");
-            responseException(request, response, messages.getMessage("token.expired", null, Locale.getDefault()));
+            responseExceptionUtil.responseException(request, response, HttpStatus.UNAUTHORIZED,
+                    messages.getMessage("token.expired", null, Locale.getDefault()));
         } catch (DataInvalidException e) {
             log.error("JWT Token has expired");
-            responseException(request, response, messages.getMessage("is.refreshtoken", null, Locale.getDefault()));
+            responseExceptionUtil.responseException(request, response, HttpStatus.UNAUTHORIZED,
+                    messages.getMessage("is.refreshtoken", null, Locale.getDefault()));
         } catch (Exception e) {
             log.error("Unable to get JWT Token");
-            responseException(request, response, messages.getMessage("token.invalid", null, Locale.getDefault()));
+            responseExceptionUtil.responseException(request, response, HttpStatus.UNAUTHORIZED,
+                    messages.getMessage("token.invalid", null, Locale.getDefault()));
         }
-
     }
 
-    private void responseException(HttpServletRequest request, HttpServletResponse response, String message)
-            throws IOException {
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        ExceptionMessageDto errorResponse = ExceptionMessageDto.builder().statusCode(HttpStatus.UNAUTHORIZED)
-                .message(message).timestamp(null).build();
-        byte[] body = new ObjectMapper().writeValueAsBytes(errorResponse);
-        response.getOutputStream().write(body);
-    }
 }

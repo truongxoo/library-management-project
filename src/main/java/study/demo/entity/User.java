@@ -70,8 +70,8 @@ public abstract class User extends AbstractAuditingEntity implements Serializabl
     @Column(name = "lock_time", columnDefinition = "datetime default null")
     private Instant lockTime;
     
-    @Column(name = "verification_code", columnDefinition = "varchar(255)")
-    private String verificationCode;
+    @Column(name = "is_deleted", columnDefinition = "boolean default false")
+    private boolean isDeleted;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
@@ -87,8 +87,8 @@ public abstract class User extends AbstractAuditingEntity implements Serializabl
     private List<UserSession> userSession;
     
     @JsonIgnore
-    @OneToOne(mappedBy = "user")
-    private OtpVerification otpVerification;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private List<OtpVerification> otpVerification;
     
     @JsonIgnore
     @OneToOne(mappedBy = "user")

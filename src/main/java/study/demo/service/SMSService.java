@@ -25,10 +25,10 @@ public class SMSService {
 
     public static final String TWILIO_NUMBER = "+12223334444";
 
-    public MessageResponseDto sendSMS() {
+    public MessageResponseDto sendSMS(String phone) {
 
         Twilio.init(System.getenv("TWILIO_ACCOUNT_SID"), System.getenv("TWILIO_AUTH_TOKEN"));
-        Message.creator(new PhoneNumber("0398455205"), 
+        Message.creator(new PhoneNumber(phone), 
                 new PhoneNumber("0398455205"), 
                 "Hello from Library")
         .create();

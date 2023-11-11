@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserSession implements Serializable {
+public class UserSession extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -35,11 +35,6 @@ public class UserSession implements Serializable {
     
     @Column(name = "is_expired", columnDefinition = "boolean default false")
     private boolean isExpired;
-    
-    @CreatedDate
-    @Column(name = "created_date", updatable = false)
-    @JsonIgnore
-    private Instant createdDate = Instant.now();
     
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

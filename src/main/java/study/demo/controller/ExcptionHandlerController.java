@@ -27,9 +27,9 @@ public class ExcptionHandlerController {
     
     // Handle exception related to user not found,username already in use,...
     @ExceptionHandler(DataInvalidException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionMessageDto handletDateInvalidException(DataInvalidException e, WebRequest request) {
-        return ExceptionMessageDto.builder().statusCode(HttpStatus.FORBIDDEN).timestamp(Instant.now())
+        return ExceptionMessageDto.builder().statusCode(HttpStatus.BAD_REQUEST).timestamp(Instant.now())
                 .message(e.getMessage()).build();
     }
 

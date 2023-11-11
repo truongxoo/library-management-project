@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,7 @@ import study.demo.service.dto.request.RegisterRequestDto;
 import study.demo.service.dto.response.MessageResponseDto;
 
 @Slf4j
+@CrossOrigin
 @RestController
 @RequestMapping("/api/register")
 @RequiredArgsConstructor

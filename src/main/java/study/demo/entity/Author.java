@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Author implements Serializable {
+public class Author extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

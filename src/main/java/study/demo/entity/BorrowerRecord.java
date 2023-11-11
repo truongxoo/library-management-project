@@ -26,7 +26,7 @@ import study.demo.enums.ERecordStatus;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BorrowerRecord implements Serializable {
+public class BorrowerRecord extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

@@ -34,33 +34,31 @@ public class AuthenticationEventListener {
     private final UserRepository userRepo;
 
     private final MessageSource messages;
-    
 
     // called when authentication fail
     @EventListener
     public void authenticationFailed(AuthenticationFailureBadCredentialsEvent event) {
-        
+
         String userName = (String) event.getAuthentication().getPrincipal();
         User user = userRepo.findByEmail(userName).orElseThrow(() -> new DataInvalidException(
                 messages.getMessage("user.notfound", new Object[] { userName }, Locale.getDefault())));
-        
         if (!user.isLocked()) {
             if (user.getFailedAttempt() < maxFailedAttempts) {
                 userService.increaseFailedAttempts(user);
             } else {
-                userService.lock(user);    // user will be locked out after 3 failed login attempts
-                throw new LockedException(messages.getMessage(
-                        "lock.user",null, Locale.getDefault()));
+                userService.lock(user); // user will be locked out after 3 failed login attempts
+                throw new LockedException(
+                        messages.getMessage("lock.time", new Object[] {  getUnlockTime(user) }, Locale.getDefault()));
             }
         } else if (user.isLocked()) {
-            if (user.getLockTime().isBefore(Instant.now())) {
-                long timeUntilUnlocked = ((user.getLockTime().toEpochMilli())
-                        - (System.currentTimeMillis()))/60000; 
-                throw new LockedException(messages.getMessage(
-                        "lock.time", new Object[] { timeUntilUnlocked }, Locale.getDefault()));
+            if (user.getLockTime().isAfter(Instant.now())) {
+                throw new LockedException(
+                        messages.getMessage("lock.time", new Object[] {  getUnlockTime(user) }, Locale.getDefault()));
+            } else {
+                userService.lock(user);
+                throw new LockedException(
+                        messages.getMessage("lock.time", new Object[] {  getUnlockTime(user) }, Locale.getDefault()));
             }
-            userRepo.unlockUser(user.getEmail());
-            throw new LockedException(messages.getMessage("unlock.user", null, Locale.getDefault()));
         }
     }
 
@@ -68,12 +66,25 @@ public class AuthenticationEventListener {
     @EventListener
     public void authenticationSuccess(AuthenticationSuccessEvent event) {
         UserDetails userDetails = (UserDetails) event.getAuthentication().getPrincipal();
-        User user = userRepo.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new DataInvalidException(messages.getMessage(
-                        "user.notfound", new Object[] { userDetails.getUsername() }, Locale.getDefault())));
-        if (user.getFailedAttempt() > 0) {
-            userService.unlockUser(user);
+        User user = userRepo.findByEmail(userDetails.getUsername()).orElseThrow(() -> new DataInvalidException(
+                messages.getMessage("user.notfound", new Object[] { userDetails.getUsername() }, Locale.getDefault())));
+        if (user.getLockTime() != null) {
+            if (user.getLockTime().isAfter(Instant.now())) {
+                throw new LockedException(
+                        messages.getMessage("lock.time", new Object[] {  getUnlockTime(user) }, Locale.getDefault()));
+            } else {
+                    userService.unlockUser(user);
+            }
         }
+    }
+
+    private long getUnlockTime(User user) {
+        long timeUntilUnlocked = 0;
+        if (user.getLockTime() != null) {
+            timeUntilUnlocked = ((user.getLockTime().toEpochMilli()) - (System.currentTimeMillis())) / 60000;
+            return timeUntilUnlocked;
+        }
+        return timeUntilUnlocked;
     }
 
 }

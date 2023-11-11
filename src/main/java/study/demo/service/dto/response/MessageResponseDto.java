@@ -6,8 +6,21 @@ import lombok.Data;
 
 @Data
 @Builder
-@AllArgsConstructor
 public class MessageResponseDto {
 
     private String message;
+    
+    private Integer statusCode;
+
+    public MessageResponseDto(String message) {
+        super();
+        this.message = message;
+    }
+
+    public MessageResponseDto(String message, Integer statusCode) {
+        super();
+        this.message = message;
+        this.statusCode = statusCode;
+    }
+    
 }

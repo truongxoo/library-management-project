@@ -30,7 +30,7 @@ import study.demo.enums.EBookStatus;
 @Data
 @Builder
 @AllArgsConstructor
-public class Book implements Serializable {
+public class Book extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

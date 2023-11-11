@@ -12,11 +12,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import study.demo.entity.LinkVerification;
-import study.demo.entity.OtpVerification;
 import study.demo.entity.User;
-import study.demo.service.LinkVerificationService;
-import study.demo.service.OtpVerificationService;
 import study.demo.service.event.OnRegistrationCompleteEvent;
 import study.demo.service.exception.ConfirmationInvalidException;
 

@@ -26,7 +26,7 @@ import study.demo.enums.ERole;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Role implements Serializable {
+public class Role extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
