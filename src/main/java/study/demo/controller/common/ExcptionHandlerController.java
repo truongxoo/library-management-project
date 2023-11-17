@@ -1,4 +1,4 @@
-package study.demo.controller;
+package study.demo.controller.common;
 
 import java.time.Instant;
 
@@ -20,6 +20,7 @@ import org.springframework.web.context.request.WebRequest;
 import io.jsonwebtoken.ExpiredJwtException;
 import study.demo.service.dto.response.ExceptionMessageDto;
 import study.demo.service.exception.CusBadCredentialsException;
+import study.demo.service.exception.CusNotFoundException;
 import study.demo.service.exception.DataInvalidException;
 import study.demo.service.exception.VerifyExpirationException;
 @RestControllerAdvice
@@ -29,22 +30,31 @@ public class ExcptionHandlerController {
     @ExceptionHandler(DataInvalidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionMessageDto handletDateInvalidException(DataInvalidException e, WebRequest request) {
-        return ExceptionMessageDto.builder().statusCode(HttpStatus.BAD_REQUEST).timestamp(Instant.now())
-                .message(e.getMessage()).build();
+        return ExceptionMessageDto.builder().statusCode(HttpStatus.FORBIDDEN).timestamp(Instant.now())
+                .message(e.getMessage())
+                .messageCode(e.getMessageCode())
+                .build();
     }
 
     // Handle user global exception
     @ExceptionHandler({Exception.class,RuntimeException.class})
     public ExceptionMessageDto handleGlobalException(Exception e, WebRequest request) {
-        return ExceptionMessageDto.builder().statusCode(HttpStatus.BAD_REQUEST).timestamp(Instant.now())
-                .message(e.getMessage()).build();
+        return ExceptionMessageDto.builder()
+                .statusCode(HttpStatus.BAD_REQUEST)
+                .timestamp(Instant.now())
+                .message(e.getMessage())
+                .build();
     }
     
     // Handle password fail exception
     @ExceptionHandler(CusBadCredentialsException.class)
     public ExceptionMessageDto handleBadCredentialsException(CusBadCredentialsException e, WebRequest request) {
-        return ExceptionMessageDto.builder().statusCode(HttpStatus.FORBIDDEN).timestamp(Instant.now())
-                .message(e.getMessage()).build();
+        return ExceptionMessageDto.builder()
+                .statusCode(HttpStatus.FORBIDDEN)
+                .timestamp(Instant.now())
+                .message(e.getMessage())
+                .messageCode(e.getMessageCode())
+                .build();
     }
     
     // Handle validate exception
@@ -61,17 +71,26 @@ public class ExcptionHandlerController {
     }
     
     // handle expiration exception
-    @ExceptionHandler({VerifyExpirationException.class})
+    @ExceptionHandler({VerifyExpirationException.class}) // status
     public ExceptionMessageDto handleExpirationException(VerifyExpirationException e, WebRequest request) {
-        return ExceptionMessageDto.builder().statusCode(HttpStatus.BAD_REQUEST).timestamp(Instant.now())
-                .message(e.getMessage()).build();
+        return ExceptionMessageDto.builder()
+                .statusCode(HttpStatus.BAD_REQUEST)
+                .timestamp(Instant.now())
+                .message(e.getMessage())
+                .messageCode(e.getMessageCode())
+                .build();
     }
-//    
-//    @ExceptionHandler({ExpiredJwtException.class})
-//    public ExceptionMessageDto resolveException(HttpServletRequest request, HttpServletResponse response, Object object,
-//            ExpiredJwtException e) {
-//        return ExceptionMessageDto.builder().statusCode(HttpStatus.BAD_REQUEST).timestamp(Instant.now())
-//                .message(e.getMessage()).build();
-//    }
+    
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(CusNotFoundException.class)
+    public ExceptionMessageDto resolveNotFoundException(CusNotFoundException e) {
+        System.out.println("-----------im here");
+        return ExceptionMessageDto.builder()
+                .statusCode(HttpStatus.NOT_FOUND)
+                .timestamp(Instant.now())
+                .message(e.getMessage())
+                .messageCode(e.getMessageCode())
+                .build();
+    }
     
 }

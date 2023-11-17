@@ -1,5 +1,6 @@
 package study.demo.service.dto.request;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 import lombok.Builder;
@@ -10,16 +11,8 @@ import study.demo.utils.validation.ValidEmail;
 @Builder
 public class ChangeMailRequestDto {
     
-    @ValidEmail(message = "{email.invalid}")
+    @Email(message = "{email.invalid}")
     @NotBlank(message = "{email.notblank}")
     private String newEmail;
-    
-    @ValidEmail(message = "{email.invalid}")
-    @NotBlank(message = "{email.notblank}")
-    private String currentEmail;
-    
-    @NotBlank(message = "{email.notblank}")
-    private String password;
-    
-
+ 
 }

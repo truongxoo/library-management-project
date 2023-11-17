@@ -12,7 +12,7 @@ public interface UserSessionService {
 	
 	UserSession verifyExpiration(String refreshToken);
 	
-	int deleteByUserSessionId(String userSessionId);
+	void deleteByUserSessionId(String userSessionId);
 	
 	UserSession save(UserSession userSessionId);
 }

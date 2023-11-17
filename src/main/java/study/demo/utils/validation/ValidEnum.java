@@ -14,8 +14,8 @@ import javax.validation.Payload;
 @Documented
 @Constraint(validatedBy = EnumValidator.class)
 public @interface ValidEnum {
-    String regexp();
-    String message() default "must match \"{regexp}\"";
+    Class<? extends Enum<?>> enumClass();
+    String message() default "Must be any of 'MALE,FEMALE,OTHER'";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

@@ -36,6 +36,9 @@ public class UserSession extends AbstractAuditingEntity implements Serializable 
     @Column(name = "is_expired", columnDefinition = "boolean default false")
     private boolean isExpired;
     
+//    @Column(name = "expiry_date", columnDefinition = "datetime")
+//    private Instant expiryDate;
+    
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -44,11 +45,14 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filerChain(HttpSecurity http) throws Exception {
+        http.cors(cors -> cors.configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()));
         http.csrf(csrf -> csrf.disable())
                 .authorizeRequests(authorizeRequests -> authorizeRequests
-                        .antMatchers("/api/auth/**", "/api/register/**", "/api/reset-password/**").permitAll()
-                        .antMatchers("/api/user/**").hasAnyAuthority("MEMBER").antMatchers("/api/admin/**")
-                        .hasAnyAuthority("ADMIN").anyRequest().authenticated());
+                        .antMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .antMatchers("/api/auth/**", "/api/register/**","/api/books/**", "/api/reset-password/**").permitAll()
+                        .antMatchers("/api/user/**").hasAnyAuthority("MEMBER")
+                        .antMatchers("/api/admin/**").hasAnyAuthority("ADMIN")
+                        .anyRequest().authenticated());
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.addFilterBefore(jwtAuthenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
@@ -67,12 +71,15 @@ public class SecurityConfig {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         final CorsConfiguration config = new CorsConfiguration();
         log.debug("Registering CORS filter");
-        config.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // Provide list of origins if you
-                                                                                      // want multiple origins
-        config.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept","email","otp"));
+        config.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // Provide list of origins 
+        config.setAllowedHeaders(
+                Arrays.asList("Origin", "Content-Type", "Content-Length", "Accept", "email", "otp", "Authorization"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH"));
         config.setAllowCredentials(true);
         source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/v3/api-docs", config);
+        source.registerCorsConfiguration("/swagger-resources", config);
+        source.registerCorsConfiguration("/swagger-ui/**", config);
         return new CorsFilter(source);
     }
 }

@@ -42,7 +42,7 @@ public class LinkVerification extends AbstractAuditingEntity implements Serializ
     @Column(name = "isExpired", columnDefinition = "datetime")
     private Instant expiryDate;
     
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

@@ -1,4 +1,4 @@
-package study.demo.controller;
+package study.demo.controller.common;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,7 +22,6 @@ import study.demo.service.dto.response.AuthenticationResponseDto;
 import study.demo.service.dto.response.MessageResponseDto;
 import study.demo.service.impl.AuthenticationServiceImpl;
 
-@CrossOrigin
 @Slf4j
 @RestController
 @RequestMapping("/api/auth")

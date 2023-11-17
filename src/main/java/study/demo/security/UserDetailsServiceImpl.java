@@ -12,13 +12,15 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import study.demo.entity.User;
 import study.demo.enums.EUserStatus;
 import study.demo.repository.UserRepository;
-import study.demo.service.UserService;
+import study.demo.service.UserInfoService;
+import study.demo.service.exception.CusNotFoundException;
 import study.demo.service.exception.DataInvalidException;
 
 @Slf4j
@@ -41,16 +43,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
      * other attributes for authenticating
      */
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String userName) {
 
         log.info("Authenticating " + userName);
-        User user = userRepo.findByEmail(userName).orElseThrow(() -> new DataInvalidException(
-                messages.getMessage("user.notfound", new Object[] { userName }, Locale.ENGLISH))); // find user with
+        User user = userRepo.findByEmail(userName)
+                .orElseThrow(() -> new CusNotFoundException(messages.getMessage(
+                        "user.notfound", new Object[] { userName }, Locale.getDefault()),"user.notfound"));    // find user with
 
-        if (user.getUserStatus() != EUserStatus.ACTIVATED) { // only user with ACTIVATED status can login
-            log.error("User " + user.getEmail() + " has been " + user.getUserStatus());
+        if (user.getUserStatus() != EUserStatus.ACTIVATED) {    // only user with ACTIVATED status can login
+            log.error("User " + user.getEmail() + " hasssss been " + user.getUserStatus());
             throw new DataInvalidException(messages.getMessage("user.notactivated",
-                    new Object[] { user.getEmail(), user.getUserStatus() }, Locale.getDefault()));
+                    new Object[] { user.getEmail(), user.getUserStatus() }, Locale.getDefault()),
+                    "user.notactivated");
         }
         List<GrantedAuthority> roleNames = List
                 .of((GrantedAuthority) new SimpleGrantedAuthority(user.getRole().getRoleName().name()));

@@ -2,6 +2,7 @@ package study.demo.entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -30,6 +31,7 @@ import study.demo.enums.EBookStatus;
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class Book extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -54,11 +56,10 @@ public class Book extends AbstractAuditingEntity implements Serializable {
     @Column(name = "image", columnDefinition = "varchar(255)")
     private String image;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "book_status", columnDefinition = "varchar(10)")
-    private EBookStatus bookStatus;
+    @Column(name = "release_date", columnDefinition = "datetime")
+    private Instant releaseDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cateory_id", nullable = false)
     private Category category;
 

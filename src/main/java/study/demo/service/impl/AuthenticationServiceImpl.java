@@ -1,19 +1,15 @@
 package study.demo.service.impl;
 
-import java.time.Instant;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
-import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -59,15 +55,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         if (authenticate(request.getEmail(), request.getPassword())) {
             userDetails = (UserDetailImpl) userDetailsService.loadUserByUsername(request.getEmail());
-            if (userDetails == null) {
-                return new AuthenticationResponseDto("Please change your password first", null);
-            }
+            
             final String accessToken = jwtService.generateTokenFromUserName(userDetails.getUsername());
             final String refreshToken = jwtService.generateRefreshToken(accessToken);    // access token and refresh token
                                                                                          // have the same jti
             User user = userRepo.findByEmail(request.getEmail())
                     .orElseThrow(() -> new DataInvalidException(messages.getMessage(
-                            "user.notfound", new Object[] { request.getEmail() }, Locale.getDefault())));
+                            "user.notfound", new Object[] { request.getEmail() }, Locale.getDefault()),"user.notfound"));
             userSessionService.save(UserSession.builder()
                     .user(user)
                     .userSessionId(jwtService.extractJti(accessToken))
@@ -84,10 +78,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         } catch (BadCredentialsException e) {
             log.error("Wrong password or username");
-            throw new CusBadCredentialsException(messages.getMessage("bad.credential", null, Locale.getDefault()));
+            throw new CusBadCredentialsException(messages.getMessage("bad.credential", null, Locale.getDefault()),"bad.credential");
         }catch (DisabledException e) {
             log.error("User does not allow to login");
-            throw new DataInvalidException(messages.getMessage("user.notactived", null, Locale.getDefault()));
+            throw new DataInvalidException(messages.getMessage("user.notactived", null, Locale.getDefault()),"user.notactived");
         } 
         return true;
     }
@@ -98,16 +92,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String jwt = request.getHeader("Authorization").substring(7);
         if (!jwtService.isRefrehToken(jwt)) { // ~Boolean.FALSE.equals(jwtService.isRefrehToken(jwt))
-            throw new DataInvalidException(messages.getMessage("isnot.refreshtoken", null, Locale.getDefault()));
+            throw new DataInvalidException(messages.getMessage("isnot.refreshtoken", null, Locale.getDefault()),"isnot.refreshtoken");
         }
         String jti = jwtService.extractJti(jwt);
 
-        return userSessionService.findByUserSessionId(jti).map(UserSession::getUser).map(user -> {
-            userSessionService.verifyExpiration(jti);
+        return userSessionService.findByUserSessionId(jti)
+                .map(UserSession::getUser)
+                .map(user -> {
+            userSessionService.verifyExpiration(jti); // set time for refreshtoken -----
             String accessToken = jwtService.generateTokenFromUserName(user.getEmail()); // response new access token
                                                                                         // when
             return new AuthenticationResponseDto(accessToken, jwt); // refresh token is valid
-        }).orElseThrow(() -> new VerifyExpirationException(messages.getMessage("refreshtoken.expired", null, null)));
+        }).orElseThrow(() -> new VerifyExpirationException(messages.getMessage("refreshtoken.expired", null, null),"refreshtoken.expired"));
     }
 
 }

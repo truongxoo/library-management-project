@@ -43,7 +43,7 @@ public class Member extends User implements Serializable {
     @Column(name = "gender", columnDefinition = "varchar(10)")
     private EGender gender;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<BorrowerRecord> borrowerRecord;
 
 }

@@ -76,9 +76,12 @@ public class JwtService {
     }
     
     // check whether token is valid or not 
-    public boolean isTokenValid(String token, UserDetails userDetails){
-        if(isRefrehToken(token)) {
-            throw new DataInvalidException(messages.getMessage("is.refreshtoken",null ,Locale.getDefault()));
+    public boolean isTokenValid(String token, UserDetails userDetails, String request) {
+        if (isRefrehToken(token) && !request.endsWith("refreshtoken")) {
+            throw new DataInvalidException(messages.getMessage("is.refreshtoken", null, Locale.getDefault()),"is.refreshtoken");
+
+        } else if (!isRefrehToken(token) && request.endsWith("refreshtoken")) {
+            throw new DataInvalidException(messages.getMessage("is.accesstoken", null, Locale.getDefault()),"is.accesstoken");
         }
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()));
@@ -93,5 +96,9 @@ public class JwtService {
     public boolean isRefrehToken(String token) {
         return Boolean.TRUE.equals(extractAllClaims(token).get("isRefreshToken"));
     }
+    
+//    private boolean isTokenExpired(String token) {
+//        return extractAllClaims(token).getExpiration().before(new Date());
+//    }
     
 }

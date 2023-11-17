@@ -3,6 +3,7 @@ package study.demo.service.dto.request;
 import java.util.HashMap;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 import com.google.common.collect.Multiset.Entry;
 
@@ -19,8 +20,7 @@ import study.demo.utils.validation.ValidPassword;
 @NoArgsConstructor
 public class ResetPasswordDto {
     
-    @NotBlank(message = "{password.notblank}")
-    @ValidPassword(message = "{password.invalid}")
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,}$",message = "{password.invalid}")
     private String newPassword;
        
 }

@@ -39,7 +39,7 @@ public class Role extends AbstractAuditingEntity implements Serializable {
     @Column(name = "role_name", columnDefinition = "varchar(10)")
     private ERole roleName;
 
-    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "role")
     private List<User> user;
 
 }

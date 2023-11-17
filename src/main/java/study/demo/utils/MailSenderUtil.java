@@ -1,12 +1,15 @@
 package study.demo.utils;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.springframework.context.MessageSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +23,10 @@ import study.demo.service.exception.ConfirmationInvalidException;
 public class MailSenderUtil {
 
     private final JavaMailSender mailSender;
-
+    
+    private final MessageSource messages;
+    
+    @Async
     public void sendMail(MailContentDto mail) {
 
         String fromAddress = "truongxo7899@gmail.com";
@@ -39,7 +45,8 @@ public class MailSenderUtil {
             
         } catch (MessagingException | UnsupportedEncodingException e) {
             log.error("Can not send email");
-            throw new ConfirmationInvalidException("Can not send email");
+            throw new ConfirmationInvalidException(messages.getMessage(
+                    "sendmail.fail", null, Locale.getDefault()),"sendmail.fail");
         }
     }
 

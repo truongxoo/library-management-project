@@ -19,5 +19,7 @@ public class ExceptionMessageDto {
     private Instant timestamp;
 
     private String message;
+    
+    private String messageCode;
 
 }

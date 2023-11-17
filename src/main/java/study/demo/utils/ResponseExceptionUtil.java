@@ -17,12 +17,16 @@ import study.demo.service.dto.response.ExceptionMessageDto;
 public class ResponseExceptionUtil {
 
     public void responseException(HttpServletRequest request, HttpServletResponse response, HttpStatus httpStatus,
-            String message) {
+            String message,String messageCode) {
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(httpStatus.value());
-        ExceptionMessageDto errorResponse = ExceptionMessageDto.builder().statusCode(httpStatus).message(message)
-                .timestamp(null).build();
+        ExceptionMessageDto errorResponse = ExceptionMessageDto
+                .builder().statusCode(httpStatus)
+                .message(message)
+                .messageCode(messageCode)
+                .timestamp(null)
+                .build();
         byte[] body;
         try {
             body = new ObjectMapper().writeValueAsBytes(errorResponse);

@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
@@ -31,7 +32,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import study.demo.controller.ExcptionHandlerController;
+import study.demo.controller.common.ExcptionHandlerController;
 import study.demo.service.UserSessionService;
 import study.demo.service.dto.response.ExceptionMessageDto;
 import study.demo.service.exception.DataInvalidException;
@@ -54,15 +55,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
     @Override
+    @Transactional
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        
+
         log.info("Verifying jwt token.....");
         final String authHeader = request.getHeader("Authorization");
         String jwt = null;
         String jti = null;
         String username = null;
-
+        
         // jwt must not be null and has to start with 'Bearer'
         try {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -72,13 +74,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 jti = jwtService.extractJti(jwt);
                 
                 userSessionService.findByUserSessionId(jti).orElseThrow(() -> new DataInvalidException(
-                        messages.getMessage("not.authenticate", null, Locale.getDefault())));
-
+                        messages.getMessage("not.authenticate", null, Locale.getDefault()),"user.not.authenticate"));
+                
                 // create authentication object for next process
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) { // ??
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    String requestPath = request.getRequestURL().toString();
 
-                    if (jwtService.isTokenValid(jwt, userDetails)) {
+                    if (jwtService.isTokenValid(jwt, userDetails, requestPath)) {
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities());
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -90,15 +93,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException e) {
             log.error("JWT Token has expired");
             responseExceptionUtil.responseException(request, response, HttpStatus.UNAUTHORIZED,
-                    messages.getMessage("token.expired", null, Locale.getDefault()));
+                    messages.getMessage("token.expired", null, Locale.getDefault()),"token.expired");
         } catch (DataInvalidException e) {
-            log.error("JWT Token has expired");
-            responseExceptionUtil.responseException(request, response, HttpStatus.UNAUTHORIZED,
-                    messages.getMessage("is.refreshtoken", null, Locale.getDefault()));
+            log.error("JWT is invalid to access resource");
+            responseExceptionUtil.responseException(request, response, HttpStatus.UNAUTHORIZED, e.getMessage(),"unauthorized");
         } catch (Exception e) {
             log.error("Unable to get JWT Token");
             responseExceptionUtil.responseException(request, response, HttpStatus.UNAUTHORIZED,
-                    messages.getMessage("token.invalid", null, Locale.getDefault()));
+                    messages.getMessage("token.invalid", null, Locale.getDefault()),"token.invalid");
         }
     }
 

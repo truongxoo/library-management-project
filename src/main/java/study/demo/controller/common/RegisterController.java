@@ -1,8 +1,10 @@
-package study.demo.controller;
+package study.demo.controller.common;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,47 +22,46 @@ import study.demo.service.dto.request.RegisterRequestDto;
 import study.demo.service.dto.response.MessageResponseDto;
 
 @Slf4j
-@CrossOrigin
 @RestController
 @RequestMapping("/api/register")
 @RequiredArgsConstructor
 public class RegisterController {
 
     private final RegisterService registerService;
-    
-    // register member 
-    @PostMapping("")
-    public ResponseEntity<MessageResponseDto> register(@RequestBody @Valid RegisterRequestDto request,HttpServletRequest httpRequest) {
+
+    // register member
+    @PostMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MessageResponseDto> register(@RequestBody @Valid RegisterRequestDto request) {
         log.info("Registration is processing...");
-        return ResponseEntity.ok(registerService.register(request,httpRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(registerService.register(request));
     }
-    
+
     // confirm with link to activate account
-    @GetMapping("/confirmationLink")
-    public ResponseEntity<Object> confirmByLink(@RequestParam("verificationCode") String verifyCode,WebRequest request) {
+    @GetMapping(value = "/confirmationLink", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> confirmByLink(@RequestParam("verificationCode") String verifyCode) {
         log.info("Confirmation with link is processing...");
         return ResponseEntity.ok(registerService.confirmLink(verifyCode));
     }
-    
-    // resends new link for user in case the old link was expired 
-    @GetMapping("/resendLink")
-    public ResponseEntity<Object> resendNewLink(@RequestParam("userName") String userName,HttpServletRequest httpRequest) {
+
+    // resends new link for user in case the old link was expired
+    @GetMapping(value = "/resendLink", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> resendNewLink(@RequestParam("userName") String userName) {
         log.info("Resending new link...");
-        return ResponseEntity.ok(registerService.resendNewLink(httpRequest, userName));
+        return ResponseEntity.ok(registerService.resendNewLink(userName));
     }
-    
+
     // confirm with OTP to activate account
-    @GetMapping("/confirmationOtp")
-    public ResponseEntity<Object> confirmByOtp(@RequestParam("otp") String otpCode,WebRequest request) {
+    @GetMapping(value = "/confirmationOtp", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> confirmByOtp(@RequestParam("otp") String otpCode) { 
         log.info("Confirmation with OTP is processing...");
         return ResponseEntity.ok(registerService.confirmOtp(otpCode));
     }
-    
-    // resends new OTP for user in case the old OTP was expired 
-    @GetMapping("/resendOtp")
-    public ResponseEntity<Object> resendNewOTP(@RequestParam("userName") String userName,HttpServletRequest httpRequest) {
+
+    // resends new OTP for user in case the old OTP was expired
+    @GetMapping(value = "/resendOtp", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> resendNewOTP(@RequestParam("userName") String userName) {
         log.info("Resending new OTP...");
-        return ResponseEntity.ok(registerService.resendNewOtp(httpRequest,userName));
+        return ResponseEntity.ok(registerService.resendNewOtp(userName));
     }
 
 }

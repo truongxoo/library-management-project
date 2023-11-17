@@ -14,7 +14,6 @@ public class OnRegistrationCompleteEvent extends ApplicationEvent {
 
     private static final long serialVersionUID = 1L;
 
-    private String appUrl;
 
     private OtpVerification otp;
 
@@ -22,25 +21,22 @@ public class OnRegistrationCompleteEvent extends ApplicationEvent {
 
     private User user;
 
-    public OnRegistrationCompleteEvent(String appUrl, OtpVerification otp, LinkVerification link,
+    public OnRegistrationCompleteEvent(OtpVerification otp, LinkVerification link,
             User user) {
         super(user);
-        this.appUrl = appUrl;
         this.otp = otp;
         this.link = link;
         this.user = user;
     }
 
-    public OnRegistrationCompleteEvent(String appUrl, LinkVerification link, User user) {
+    public OnRegistrationCompleteEvent(LinkVerification link, User user) {
         super(user);
-        this.appUrl = appUrl;
         this.link = link;
         this.user = user;
     }
 
-    public OnRegistrationCompleteEvent(String appUrl, OtpVerification otp, User user) {
+    public OnRegistrationCompleteEvent( OtpVerification otp, User user) {
         super(user);
-        this.appUrl = appUrl;
         this.otp = otp;
         this.user = user;
     }

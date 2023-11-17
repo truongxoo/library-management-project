@@ -15,7 +15,9 @@ import javax.validation.Payload;
 @Constraint(validatedBy = DateValidator.class)
 public @interface ValidDate {
     
-    String message() default "{}";
+    String pattern() default ""; 
+    
+    String message() default "{ReleaseDate is incorrcet format}";
 
     Class<?>[] groups() default {};
 

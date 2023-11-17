@@ -1,6 +1,6 @@
 package study.demo.enums;
 
 public enum EUserStatus {
-	ACTIVATED,BLOCKED,UNVERIFY 
+	ACTIVATED,BLOCKED,UNVERIFY,VULNERABLE
 
 }
