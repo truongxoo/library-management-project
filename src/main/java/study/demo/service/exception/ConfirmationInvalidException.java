@@ -1,11 +1,20 @@
 package study.demo.service.exception;
 
+import lombok.Data;
+
+@Data
 public class ConfirmationInvalidException extends RuntimeException{
 
-    private static final long serialVersionUID = 1L;
+ private final String messageCode;
     
-    public ConfirmationInvalidException(String message) {
-        super(message);
-    }
+    private final String message;
 
+    private static final long serialVersionUID = 1L;
+
+    public ConfirmationInvalidException(String message ,String messageCode) {
+        super(message);
+        this.message=message;
+        this.messageCode =messageCode;
+    }
+    
 }

@@ -1,19 +1,15 @@
 package study.demo.service;
 
-import javax.validation.Valid;
+import java.util.List;
 
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import study.demo.entity.User;
-import study.demo.service.dto.request.PasswordRequestDto;
-import study.demo.service.dto.request.UserFilterDto;
-import study.demo.service.dto.response.MessageResponseDto;
+import study.demo.service.dto.response.UserDto;
 
 public interface UserService {
-
-    Page<User> findAllUsers(Integer pageIndex);
-
-    Page<User> findUsersByFilter(UserFilterDto userFilter, Integer pageIndex);
+    
+    List<UserDto> findAllUsers(Pageable pageable);
 
     void increaseFailedAttempts(User user);
     
@@ -21,8 +17,4 @@ public interface UserService {
     
     void unlockUser(User user);
 
-    MessageResponseDto  resetPassword(String userName);
-
-    MessageResponseDto changePassword(PasswordRequestDto request, String userName);
-    
 }

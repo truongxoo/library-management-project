@@ -1,20 +1,21 @@
 package study.demo.service;
 
-import org.springframework.data.domain.Page;
+import java.util.List;
+
+import org.springframework.data.domain.Pageable;
 
 import study.demo.entity.Book;
-import study.demo.service.dto.request.BookFilterDto;
+import study.demo.service.dto.response.BookDto;
+import study.demo.service.dto.response.MessageResponseDto;
 
 public interface BookService {
 
-    Page<Book> findBooksByFilter(BookFilterDto bookFilter, Integer pageIndex);
+    List<BookDto> findAllBooks(Pageable pageable);
 
-    Page<Book> findAllBooks(Integer pageIndex);
+    MessageResponseDto createNewBook(BookDto bookdto);
 
-    Book createNewBook(Book book);
-
-    Book updateBook(Book book, Integer bookId);
-
-    void deleteBookById(Integer booId);
+    MessageResponseDto updateBook(BookDto bookDto, Integer bookId);
+    
+    BookDto findBookById(Integer bookId);
 
 }

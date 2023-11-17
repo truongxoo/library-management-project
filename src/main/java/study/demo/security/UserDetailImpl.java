@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import study.demo.enums.EUserStatus;
+
 public class UserDetailImpl implements UserDetails {
 
     private static final long serialVersionUID = 1L;
@@ -15,6 +17,8 @@ public class UserDetailImpl implements UserDetails {
     private String userName;
     
     private String password;
+    
+    private EUserStatus status; 
     
     private List<GrantedAuthority> authorities;
 
@@ -29,6 +33,16 @@ public class UserDetailImpl implements UserDetails {
         this.userId = userId;
         this.userName = userName;
         this.password = password;
+        this.authorities = authorities;
+    }
+    
+    public UserDetailImpl(Integer userId, String userName, String password, EUserStatus status,
+            List<GrantedAuthority> authorities) {
+        super();
+        this.userId = userId;
+        this.userName = userName;
+        this.password = password;
+        this.status = status;
         this.authorities = authorities;
     }
 
@@ -54,7 +68,7 @@ public class UserDetailImpl implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return this.status != EUserStatus.BLOCKED;
     }
 
     @Override
@@ -64,7 +78,7 @@ public class UserDetailImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.status == EUserStatus.ACTIVATED;
     }
 
     public Integer getUserId() {

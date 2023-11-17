@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Author implements Serializable {
+public class Author extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -34,13 +34,16 @@ public class Author implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer authorId;
 
+    @Column(name = "name", columnDefinition = "varchar(255)")
+    private String name;
+    
     @Column(name = "description", columnDefinition = "varchar(255)")
     private String description;
 
     @Column(name = "phone", columnDefinition = "varchar(10)")
     private String phone;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "author")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "author")
     private List<Book> book;
 
 }

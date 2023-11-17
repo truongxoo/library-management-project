@@ -1,56 +1,45 @@
 package study.demo.service.impl;
 
 import java.time.Instant;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
+import java.util.List;
 
-import javax.transaction.Transactional;
-import javax.validation.Valid;
-
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import study.demo.entity.User;
-import study.demo.enums.EUserStatus;
 import study.demo.repository.UserRepository;
-import study.demo.service.MailSenderService;
 import study.demo.service.UserService;
-import study.demo.service.dto.request.PasswordRequestDto;
-import study.demo.service.dto.request.UserFilterDto;
-import study.demo.service.dto.response.MessageResponseDto;
-import study.demo.service.exception.CusBadCredentialsException;
+import study.demo.service.dto.response.UserDto;
+import study.demo.utils.ConverterUtil;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
-@Transactional(dontRollbackOn = { CusBadCredentialsException.class })
-public class UserServiceImpl implements UserService {
-
+public class UserServiceImpl  implements UserService{
+    
     @Value("${app.maxFailedAttempts}")
     private Long maxFailedAttempts;
 
     @Value("${app.lockTimeDuration}")
     private Long lockTimeDuration;
 
-    private final PasswordEncoder encoder;
-
     private final UserRepository userRepository;
-
-    private final MailSenderService mailSenderService;
-
-    private final MessageSource messages;
-
+    
+    private final ModelMapper modelMapper;
+    
+    private final ConverterUtil converterUtil;
+    
+    
     // lock user after 3 failed login attempts
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void lock(User user) {
         user.setLocked(true);
         user.setLockTime(Instant.now().plusMillis(lockTimeDuration));
@@ -59,6 +48,7 @@ public class UserServiceImpl implements UserService {
 
     // when login fail, failed attempt will increase by 1
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void increaseFailedAttempts(User user) {
         int newFailAttempts = user.getFailedAttempt() + 1;
         userRepository.updateFailedAttempts(newFailAttempts, user.getEmail());
@@ -66,63 +56,20 @@ public class UserServiceImpl implements UserService {
 
     // unlock user when login successfully or lock time is over
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void unlockUser(User user) {
         userRepository.unlockUser(user.getEmail());
     }
-
+    
+    // find all users
     @Override
-    public Page<User> findAllUsers(Integer pageIndex) {
-        Pageable pageable = null;
-        if (pageIndex == 0) {
-            pageable = PageRequest.of(0, 10);
-        } else {
-            pageable = PageRequest.of(pageIndex, 10);
-        }
-        return userRepository.findAll(pageable);
-    }
+    @Transactional(readOnly = true)
+    public List<UserDto> findAllUsers(Pageable pageable) {
+        Page<User> users = userRepository.findAll(pageable);
+        return users.stream()
+                .map(user -> modelMapper.map(user, UserDto.class))
+                .toList();
 
-    @Override
-    public Page<User> findUsersByFilter(UserFilterDto userFilter, Integer pageIndex) {
-        Pageable pageable = null;
-        if (pageIndex == 0) {
-            pageable = PageRequest.of(0, 10);
-        } else {
-            pageable = PageRequest.of(pageIndex, 10);
-        }
-
-        return null;
-    }
-
-    // reset password
-    @Override
-    public MessageResponseDto resetPassword(String userName) {
-
-        Optional<User> user = userRepository.findByEmail(userName);
-        Random random = new Random();
-        String newPassword = String.valueOf(random.nextInt(999999));
-
-        if (user.isPresent()) {
-
-            user.get().setUserStatus(EUserStatus.UNVERIFY);
-            user.get().setPassword(encoder.encode(newPassword));
-            userRepository.save(user.get());
-            mailSenderService.sendMail(userName, newPassword);
-
-            return new MessageResponseDto(messages.getMessage("resetpassword.success", null, Locale.getDefault()));
-        }
-        return new MessageResponseDto(messages.getMessage("resetpassword.fail", null, Locale.getDefault()));
-    }
-
-    @Override
-    public MessageResponseDto changePassword(PasswordRequestDto request, String userName) {
-        return userRepository.findByEmail(userName).filter(user -> {
-            return !encoder.matches(request.getNewPassword(), user.getPassword());
-            }).map(user -> {
-                user.setUserStatus(EUserStatus.ACTIVATED);
-                user.setPassword(encoder.encode(request.getNewPassword()));
-                userRepository.save(user);
-                return new MessageResponseDto(messages.getMessage("changepassword.success", null, Locale.getDefault()));
-            }).orElse(new MessageResponseDto(messages.getMessage("changepassword.fail", null, Locale.getDefault())));
     }
 
 }

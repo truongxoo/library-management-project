@@ -5,9 +5,6 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -18,7 +15,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import study.demo.enums.ECategory;
 
 @Entity
 @Table(name = "category")
@@ -26,7 +22,7 @@ import study.demo.enums.ECategory;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category implements Serializable {
+public class Category extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -35,10 +31,11 @@ public class Category implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer categoryId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "category_name", columnDefinition = "varchar(10)")
-    private ECategory categoryName;
+    @Column(name = "category_name", columnDefinition = "varchar(100)")
+    private String categoryName;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "category")
     private List<Book> book;
+    
+    
 }

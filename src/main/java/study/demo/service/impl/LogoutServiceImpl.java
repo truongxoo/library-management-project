@@ -25,7 +25,6 @@ public class LogoutServiceImpl implements LogoutService {
     private final UserSessionService userSessionService;
 
     private final JwtService jwtService;
-    
     private final MessageSource messages;
 
     @Override
@@ -40,6 +39,9 @@ public class LogoutServiceImpl implements LogoutService {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
             SecurityContextHolder.getContext().setAuthentication(null);
         }
-        return new MessageResponseDto(messages.getMessage("logout.success", null,Locale.getDefault()));
+        return  MessageResponseDto.builder()
+                .message(messages.getMessage("logout.success", null,Locale.getDefault()))
+                .messageCode("logout.success")
+                .build();
     }
 }

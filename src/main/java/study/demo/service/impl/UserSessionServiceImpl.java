@@ -1,32 +1,31 @@
 package study.demo.service.impl;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.Optional;
-
-import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import study.demo.entity.UserSession;
 import study.demo.repository.UserSessionRepository;
-import study.demo.security.jwt.JwtService;
 import study.demo.service.UserSessionService;
+import study.demo.service.exception.CusNotFoundException;
 import study.demo.service.exception.DataInvalidException;
 import study.demo.service.exception.VerifyExpirationException;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserSessionServiceImpl implements UserSessionService {
 
     @Value("${app.jwtRefreshExpirationMs}")
     private Long refreshTokenDurationMs;
 
     private final UserSessionRepository userSessionRepository;
-
-    private final JwtService jwtService;
     
     private final MessageSource messages;
 
@@ -34,9 +33,11 @@ public class UserSessionServiceImpl implements UserSessionService {
     public UserSession verifyExpiration(String userSessionId) throws VerifyExpirationException {
         
         UserSession userSession = userSessionRepository.findById(userSessionId)
-                .orElseThrow(()-> new DataInvalidException(messages.getMessage("refreshtoken.notfound", null, null)));
+                .orElseThrow(()-> new CusNotFoundException(messages.getMessage(
+                        "refreshtoken.notfound", null, Locale.getDefault()),"refreshtoken.notfound"));
         if(userSession.isExpired()) {
-            throw new VerifyExpirationException(messages.getMessage("refreshtoken.expired", null, Locale.getDefault()));
+            throw new VerifyExpirationException(messages.getMessage(
+                    "refreshtoken.expired", null, Locale.getDefault()),"refreshtoken.expired");
         }
         Optional.of(userSession)
             .map(UserSession::getCreatedDate)
@@ -45,12 +46,15 @@ public class UserSessionServiceImpl implements UserSessionService {
             .ifPresent(u -> {
                     userSession.setExpired(true);
                     userSessionRepository.save(userSession);
-                    throw new VerifyExpirationException(messages.getMessage("refreshtoken.expired", null, null));
+                    throw new VerifyExpirationException(messages.getMessage(
+                            "refreshtoken.expired", null, Locale.getDefault()),"refreshtoken.expired");
                 });
+        userSession.getCreatedDate().plus(refreshTokenDurationMs,ChronoUnit.MILLIS);
         return userSession;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<UserSession> findByUserSessionId(String userSessionID) {
         return userSessionRepository.findById(userSessionID);
     }
@@ -66,13 +70,9 @@ public class UserSessionServiceImpl implements UserSessionService {
     }
 
     @Override
-    public int deleteByUserSessionId(String userSessionId) {
-        return userSessionRepository.findById(userSessionId).map(uss -> {
-//            uss.setExpired(true);
-//            userSessionRepository.save(uss);
-             userSessionRepository.delete(uss);
-            return 1;
-        }).orElseThrow(() -> new VerifyExpirationException("Invalid token"));
+    public void deleteByUserSessionId(String userSessionId) {
+        userSessionRepository.findById(userSessionId).ifPresentOrElse(userSessionRepository::delete,
+                () -> new VerifyExpirationException(messages.getMessage(
+                        "token.invalid", null, Locale.getDefault()),"token.invalid"));
     }
-
 }

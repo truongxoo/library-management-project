@@ -1,5 +1,8 @@
 package study.demo.config;
 
+import javax.validation.Validator;
+
+import org.modelmapper.ModelMapper;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,5 +43,10 @@ public class PersistenceConfig {
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
+    
+    @Bean
+    ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
+    
 }

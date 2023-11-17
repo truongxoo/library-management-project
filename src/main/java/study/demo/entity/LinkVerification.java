@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LinkVerification implements Serializable {
+public class LinkVerification extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,14 +39,10 @@ public class LinkVerification implements Serializable {
     @Column(name = "verification_code", columnDefinition = "varchar(255)")
     private String verificationCode;
     
-    @CreatedDate
-    @Column(name = "link_create_time", columnDefinition = "datetime")
-    private Instant createDate = Instant.now();
-    
     @Column(name = "isExpired", columnDefinition = "datetime")
     private Instant expiryDate;
     
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

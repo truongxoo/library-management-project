@@ -1,7 +1,6 @@
 package study.demo.security.jwt;
 
 import java.security.Key;
-import java.security.SignatureException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -77,18 +76,16 @@ public class JwtService {
     }
     
     // check whether token is valid or not 
-    public boolean isTokenValid(String token, UserDetails userDetails){
-        if(isRefrehToken(token)) {
-            throw new DataInvalidException(messages.getMessage("is.refreshtoken",null ,Locale.getDefault()));
+    public boolean isTokenValid(String token, UserDetails userDetails, String request) {
+        if (isRefrehToken(token) && !request.endsWith("refreshtoken")) {
+            throw new DataInvalidException(messages.getMessage("is.refreshtoken", null, Locale.getDefault()),"is.refreshtoken");
+
+        } else if (!isRefrehToken(token) && request.endsWith("refreshtoken")) {
+            throw new DataInvalidException(messages.getMessage("is.accesstoken", null, Locale.getDefault()),"is.accesstoken");
         }
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()));
     }
-
-    // check expiration time of token 
-//    public boolean isTokenExpired(String token) {
-//        return extractAllClaims(token).getExpiration().before(new Date());
-//    }
 
     // get jti from token
     public String extractJti(String token) {
@@ -97,7 +94,11 @@ public class JwtService {
     
     // check if the refresh token or not
     public boolean isRefrehToken(String token) {
-        return extractAllClaims(token).get("isRefreshToken") != null;
+        return Boolean.TRUE.equals(extractAllClaims(token).get("isRefreshToken"));
     }
+    
+//    private boolean isTokenExpired(String token) {
+//        return extractAllClaims(token).getExpiration().before(new Date());
+//    }
     
 }

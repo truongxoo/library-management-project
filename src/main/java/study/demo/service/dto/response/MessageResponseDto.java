@@ -10,4 +10,9 @@ import lombok.Data;
 public class MessageResponseDto {
 
     private String message;
+    
+    private Integer statusCode;
+    
+    private String messageCode;
+
 }

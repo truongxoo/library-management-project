@@ -7,13 +7,13 @@ import study.demo.service.dto.response.MessageResponseDto;
 
 public interface RegisterService {
     
-    MessageResponseDto register(RegisterRequestDto request,HttpServletRequest httpRequest);
+    MessageResponseDto register(RegisterRequestDto request);
 
     MessageResponseDto confirmLink(String verifyCode);
     
     MessageResponseDto confirmOtp(String otpCode);
     
-    MessageResponseDto resendNewOtp(HttpServletRequest httpRequest,String userName);
+    MessageResponseDto resendNewOtp(String userName);
     
-    MessageResponseDto resendNewLink(HttpServletRequest httpRequest,String userName);
+    MessageResponseDto resendNewLink(String userName);
 }
