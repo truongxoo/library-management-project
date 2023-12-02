@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        h1 {
+            color: #33FF9F;
+            text-align: center;
+        }
+        .order {
+            width: 100%;
+        }
+        .order, .order th, .order td {
+            border: 1px solid #33FF9F;
+            border-collapse: collapse;
+        }
+        .order th {
+            background-color: #33FF9F;
+            color: white;
+        }
+        .total {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+<br />
+<table class="order">
+    <tr>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Sex</th>
+    </tr>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.name}"></td>
+        <td th:text="${user.age}"></td>
+        <td th:text="${user.sex}"></td>
+    </tr>
+</table>
+</body>
+</html>
