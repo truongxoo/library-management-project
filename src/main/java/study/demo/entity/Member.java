@@ -16,6 +16,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import study.demo.enums.EGender;
@@ -29,19 +30,6 @@ import study.demo.enums.EGender;
 public class Member extends User implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    @Column(name = "first_name", columnDefinition = "varchar(50)")
-    private String firstName;
-
-    @Column(name = "last_name", columnDefinition = "varchar(50)")
-    private String lastName;
-
-    @Column(name = "birthday", columnDefinition = "datetime")
-    private Instant birthday;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "gender", columnDefinition = "varchar(10)")
-    private EGender gender;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<BorrowerRecord> borrowerRecord;

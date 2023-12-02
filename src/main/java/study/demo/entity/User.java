@@ -27,8 +27,10 @@ import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import study.demo.enums.EGender;
 import study.demo.enums.EUserStatus;
 
 @Entity
@@ -37,7 +39,8 @@ import study.demo.enums.EUserStatus;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class User extends AbstractAuditingEntity implements Serializable {
+@Builder
+public class User extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -77,6 +80,19 @@ public abstract class User extends AbstractAuditingEntity implements Serializabl
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+    
+    @Column(name = "first_name", columnDefinition = "varchar(50)")
+    private String firstName;
+
+    @Column(name = "last_name", columnDefinition = "varchar(50)")
+    private String lastName;
+
+    @Column(name = "birthday", columnDefinition = "datetime")
+    private Instant birthday;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender", columnDefinition = "varchar(10)")
+    private EGender gender;
 
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
@@ -92,6 +108,7 @@ public abstract class User extends AbstractAuditingEntity implements Serializabl
     @JsonIgnore
     @OneToOne(mappedBy = "user")
     private LinkVerification linkVerification;
+    
     
 
 }

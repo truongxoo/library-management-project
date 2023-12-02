@@ -27,7 +27,7 @@ import study.demo.service.impl.AuthenticationServiceImpl;
 @RequiredArgsConstructor
 public class BookController {
     
-    private final BookRepository bokBookRepository;
+    private final BookRepository bookRepository;
     
     private final BookQueryService bookQueryService;
     

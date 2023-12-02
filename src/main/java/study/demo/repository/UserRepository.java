@@ -35,7 +35,13 @@ public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecifi
     @Modifying
     @Query("UPDATE User u SET u.failedAttempt = 0,u.locked = false,u.lockTime = null WHERE u.email = ?1")
     void unlockUser(String email);
+    
+    @Modifying
+    @Query("UPDATE User u SET u.userStatus = 'DELETED' WHERE u.userId = ?1")
+    void deleteById(Integer userId);
 
     Page<User> findAll(Specification<User> spec, Pageable pageable);
 
+    
+    User findByUserStatus(String status);
 }

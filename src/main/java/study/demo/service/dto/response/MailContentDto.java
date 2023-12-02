@@ -1,5 +1,7 @@
 package study.demo.service.dto.response;
 
+import org.springframework.core.io.Resource;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,4 +15,7 @@ public class MailContentDto {
     
     private String receiver;
     
+    private String addInline;
+    
+    private Resource resource;
 }

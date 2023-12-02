@@ -84,7 +84,7 @@ public class JwtService {
             throw new DataInvalidException(messages.getMessage("is.accesstoken", null, Locale.getDefault()),"is.accesstoken");
         }
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()));
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     // get jti from token
@@ -97,8 +97,8 @@ public class JwtService {
         return Boolean.TRUE.equals(extractAllClaims(token).get("isRefreshToken"));
     }
     
-//    private boolean isTokenExpired(String token) {
-//        return extractAllClaims(token).getExpiration().before(new Date());
-//    }
+    private boolean isTokenExpired(String token) {
+        return extractAllClaims(token).getExpiration().before(new Date());
+    }
     
 }

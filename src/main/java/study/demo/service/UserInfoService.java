@@ -27,7 +27,7 @@ public interface UserInfoService {
 
     MessageResponseDto changeMail(ChangeMailRequestDto request);
     
-    MessageResponseDto confirmChangeMail(ChangeMailRequestDto request,String otpCode);
+    MessageResponseDto confirmChangeMail(ChangeMailRequestDto request,HttpServletRequest httpRequest);
     
     MessageResponseDto requestChangePhone();
     

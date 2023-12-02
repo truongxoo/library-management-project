@@ -13,6 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import study.demo.security.AuditorAwareImpl;
 
 @Configuration
@@ -48,5 +50,12 @@ public class PersistenceConfig {
     ModelMapper modelMapper() {
         return new ModelMapper();
     }
+    
+//    @Bean
+//    public ObjectMapper defaultMapper() {
+//        ObjectMapper objectMapper = new ObjectMapper(); 
+//        objectMapper.registerModule(new JavaTimeModule()); 
+//        return objectMapper;
+//    }
     
 }

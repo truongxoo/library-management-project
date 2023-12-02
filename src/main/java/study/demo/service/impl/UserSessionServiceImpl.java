@@ -1,5 +1,6 @@
 package study.demo.service.impl;
 
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.Optional;
@@ -39,17 +40,15 @@ public class UserSessionServiceImpl implements UserSessionService {
             throw new VerifyExpirationException(messages.getMessage(
                     "refreshtoken.expired", null, Locale.getDefault()),"refreshtoken.expired");
         }
-        Optional.of(userSession)
-            .map(UserSession::getCreatedDate)
-            .filter(exiredDate -> (
-                    exiredDate.toEpochMilli() + refreshTokenDurationMs) <= System.currentTimeMillis())
-            .ifPresent(u -> {
-                    userSession.setExpired(true);
-                    userSessionRepository.save(userSession);
-                    throw new VerifyExpirationException(messages.getMessage(
-                            "refreshtoken.expired", null, Locale.getDefault()),"refreshtoken.expired");
-                });
-        userSession.getCreatedDate().plus(refreshTokenDurationMs,ChronoUnit.MILLIS);
+        
+        if ( userSession.getExpiryDate().isBefore(Instant.now())) {
+            userSession.setExpired(true);
+            userSessionRepository.save(userSession);
+            throw new VerifyExpirationException(messages.getMessage(
+                    "refreshtoken.expired", null, Locale.getDefault()),"refreshtoken.expired");            
+        }
+        userSession.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+        userSessionRepository.save(userSession);
         return userSession;
     }
 

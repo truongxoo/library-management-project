@@ -1,6 +1,7 @@
 package study.demo.service.dto.request;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.PackagePrivate;
 import study.demo.entity.PhoneNumber;
+import study.demo.enums.Constants;
 import study.demo.utils.validation.Phone;
 import study.demo.utils.validation.ValidPhone;
 @Data
@@ -16,7 +18,7 @@ import study.demo.utils.validation.ValidPhone;
 @AllArgsConstructor
 public class ChangePhoneRequestDto {
     
-    @ValidPhone(message = "{phone.invalid}")
+    @Pattern(regexp = Constants.PHONE_REGEX, message = "{phone.invalid}")
     @NotBlank(message = "{phone.notblank}")
     private String newPhone;
     

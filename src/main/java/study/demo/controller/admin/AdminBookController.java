@@ -1,11 +1,18 @@
 package study.demo.controller.admin;
 
+import java.time.Instant;
+import java.util.Date;
+
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,8 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.twilio.http.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -44,7 +49,6 @@ public class AdminBookController {
     
     private final FileUploadingService fileUploadingService;
 
-    
     // create new book
     @PostMapping("/books")
     public ResponseEntity<Void> createNewBook(@Valid @RequestBody BookDto BookDto) {
@@ -72,5 +76,21 @@ public class AdminBookController {
     public ResponseEntity<MessageResponseDto> uploadFileCSV(@RequestParam(value = "file") MultipartFile file) {
         return  ResponseEntity.ok(fileUploadingService.fileUploading(file));
     }
+    
+    @PostMapping("books/{id}/image")
+    public ResponseEntity<MessageResponseDto> uploadImage(@RequestParam(value = "file") MultipartFile file,@PathVariable(value = "id") Integer bookId) {
+        return  ResponseEntity.ok(fileUploadingService.imageUploading(file));
+    }
+    
+    @DeleteMapping("books/{id}/image")
+    public ResponseEntity<MessageResponseDto> deleteImage(@RequestParam(value = "file") MultipartFile file,@PathVariable(value = "id") Integer bookId) {
+        return  ResponseEntity.ok(fileUploadingService.deleteImage(file));
+    }
+    
+    @GetMapping(value="books/image/preview",produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<Resource> previewImage(@RequestParam(value = "fileName") String fileName) {
+        return  ResponseEntity.ok(fileUploadingService.previewImage(fileName));
+    }
+         
     
 }

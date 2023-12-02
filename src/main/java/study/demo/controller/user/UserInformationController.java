@@ -24,7 +24,7 @@ import study.demo.service.dto.response.MessageResponseDto;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/user")
+@RequestMapping("/api")
 public class UserInformationController {
 
     private final UserInfoService userService;
@@ -41,33 +41,33 @@ public class UserInformationController {
         return ResponseEntity.ok(userService.confirmResetPassword(httpRequest,password));
     }
     
-    @PostMapping("/change-password")
+    @PostMapping("/user/change-password")
     public ResponseEntity<MessageResponseDto> changeUserPassword(@Valid @RequestBody ChangePasswordRequestDto request) {
         log.info("Request change password is processing...");
         return ResponseEntity.ok(userService.changePassword(request));
     }
 
-    @PostMapping("/change-email")
+    @PostMapping("/user/change-email")
     public ResponseEntity<MessageResponseDto> changeUserMail(@Valid @RequestBody ChangeMailRequestDto request) {
         log.info("Request change email is processing...");
         return ResponseEntity.ok(userService.changeMail(request));
     }
 
-    @PostMapping("/change-email/confirm")
-    public ResponseEntity<MessageResponseDto> confirmChangeMail(@Valid @RequestBody ChangeMailRequestDto request,
-            @RequestParam("otp") String otpCode) {
+    @PostMapping("/user/change-email/confirm")
+    public ResponseEntity<MessageResponseDto> confirmChangeMail(@Valid @RequestBody ChangeMailRequestDto request
+         ,HttpServletRequest httpRequest) {
         log.info("Confirm change email...");
-        return ResponseEntity.ok(userService.confirmChangeMail(request, otpCode));
+        return ResponseEntity.ok(userService.confirmChangeMail(request,httpRequest));
     }
     
-    @GetMapping("/change-phone")
+    @GetMapping("/user/change-phone")
     public ResponseEntity<MessageResponseDto> requestChangePhone(HttpServletRequest request) {
-        log.info("Confirm change email...");
+        log.info("Request change phone is processing...");
         return ResponseEntity.ok(userService.requestChangePhone());
     }
-    @PostMapping("/change-phone/confirm")
+    @PostMapping("/user/change-phone/confirm")
     public ResponseEntity<MessageResponseDto> confirmChangPhone(@Valid @RequestBody ChangePhoneRequestDto newPhone,HttpServletRequest request) {
-        log.info("Confirm change email...");
+        log.info("Confirm change phone...");
         return ResponseEntity.ok(userService.confirmChangePhone(request,newPhone));
     }
     

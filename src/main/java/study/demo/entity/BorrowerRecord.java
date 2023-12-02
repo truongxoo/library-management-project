@@ -46,11 +46,11 @@ public class BorrowerRecord extends AbstractAuditingEntity implements Serializab
     @Column(name = "record_status", columnDefinition = "varchar(10)")
     private ERecordStatus recordStatus;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 

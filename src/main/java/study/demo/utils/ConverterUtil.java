@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import study.demo.entity.Author;
 import study.demo.entity.Book;
+import study.demo.entity.BorrowerRecord;
 import study.demo.entity.Category;
 import study.demo.entity.Member;
 import study.demo.entity.User;
@@ -17,6 +18,7 @@ import study.demo.repository.BookRepository;
 import study.demo.repository.CategoryRepository;
 import study.demo.service.dto.response.AdminUserDto;
 import study.demo.service.dto.response.BookDto;
+import study.demo.service.dto.response.BorrowerRecordDto;
 import study.demo.service.exception.CusNotFoundException;
 import study.demo.service.exception.DataInvalidException;
 
@@ -73,6 +75,7 @@ public class ConverterUtil {
                 .build();
     }
     
+   
     public AdminUserDto convertAdminUserDto(Member user) {
         return AdminUserDto.builder()
                 .userId(user.getUserId())
@@ -86,4 +89,18 @@ public class ConverterUtil {
                 .locked(user.isLocked())
                 .build();
     }
+    
+    public BorrowerRecordDto convertToBorrowerRecordDto(BorrowerRecord record) {
+        return BorrowerRecordDto.builder()
+                .borrowerRecordId(record.getBorrowerRecordId())
+                .bookTitle(record.getBook().getTitle())
+                .issueOn(record.getIssueOn())
+                .dueDate(record.getDueDate())
+                .recordStatus(record.getRecordStatus().name())           
+                .author(record.getBook().getAuthor().getName())
+                .userName(record.getUser().getEmail())
+                .bookImage(record.getBook().getImage())
+                .build();
+    }
+    
 }

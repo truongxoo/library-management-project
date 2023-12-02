@@ -16,7 +16,7 @@ import javax.validation.Payload;
 @Constraint(validatedBy = PhoneValidator.class)
 public @interface ValidPhone {
 
-    String message() default "{jakarta.validation.constraints.Phone.message}";
+    String message() default "Phone is invalid";
 
     Class<?>[] groups() default {};
 

@@ -1,12 +1,15 @@
 package study.demo.utils;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Path;
 import java.util.Locale;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.lang3.CharEncoding;
 import org.springframework.context.MessageSource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -33,14 +36,17 @@ public class MailSenderUtil {
         String senderName = "Library";
 
         MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message);
 
         try {
+            MimeMessageHelper helper = new MimeMessageHelper(message,true,"UTF-8");
             helper.setFrom(fromAddress, senderName);
             helper.setTo(mail.getReceiver());
             helper.setSubject(mail.getSubject());
 
             helper.setText(mail.getContent(), true);
+            if(mail.getAddInline() !=null || mail.getResource() !=null) {
+                helper.addInline("imageBook",mail.getResource());
+            }
             mailSender.send(message);
             
         } catch (MessagingException | UnsupportedEncodingException e) {

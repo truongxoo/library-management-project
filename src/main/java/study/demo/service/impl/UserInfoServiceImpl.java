@@ -87,8 +87,8 @@ public class UserInfoServiceImpl implements UserInfoService {
                 otpRepo.delete(s);
             }
         });
-        user.get().setUserStatus(EUserStatus.VULNERABLE);
-        userRepository.save(user.get());
+//        user.get().setUserStatus(EUserStatus.VULNERABLE);
+//        userRepository.save(user.get());
         String otp = OtpUtil.generateOtp();
         OtpVerification otpVrf = otpVrfService.createOtpVerification(user.get(), otp, EOtpType.RESET_PASSWORD);
         String content = "<p>Hello " + userName + "</p>" + "<p>This is your otp using to reset your password</p>"
@@ -132,10 +132,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         user.get().setPassword(encoder.encode(request.getNewPassword()));
         userRepository.save(user.get());
-
-        user.get().getUserSession().stream()
-        .forEach(userSesion ->userSessionRepository.delete(userSesion));
-
+        
+        userSessionRepository.deleteUserSessionByUserName(user.get().getUserId());
         return MessageResponseDto.builder()
                 .message((messages.getMessage("changepassword.success", null, Locale.getDefault())))
                 .messageCode("changepassword.success").build();
@@ -143,8 +141,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     // confirm change mail
     @Override
-    public MessageResponseDto confirmChangeMail(ChangeMailRequestDto request, String otpCode) {
+    public MessageResponseDto confirmChangeMail(ChangeMailRequestDto request,HttpServletRequest httpRequest) {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        String otpCode = httpRequest.getHeader("otp");
         OtpVerification otp = otpRepo.findByOtpCodeAndOtpType(otpCode, EOtpType.CHANGE_MAIL);
         if (otp == null) {
             log.error("Can not found otp with otpCode: {}", otpCode);
@@ -186,7 +185,7 @@ public class UserInfoServiceImpl implements UserInfoService {
                     messages.getMessage("user.notfound", new Object[] { userName }, Locale.getDefault()),
                     "user.notfound");
         }
-        if (userName.equals(request.getNewEmail())) {
+        if (userName.equalsIgnoreCase(request.getNewEmail())) {
             log.error("New email {} is the same with current email: {}", userName, request.getNewEmail());
             throw new DataInvalidException(messages.getMessage("username.issame", null, Locale.getDefault()),
                     "username.issame");

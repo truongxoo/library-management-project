@@ -33,6 +33,7 @@ import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import study.demo.controller.common.ExcptionHandlerController;
+import study.demo.entity.UserSession;
 import study.demo.service.UserSessionService;
 import study.demo.service.dto.response.ExceptionMessageDto;
 import study.demo.service.exception.DataInvalidException;
@@ -73,9 +74,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 username = jwtService.extractUsername(jwt); // get username from token
                 jti = jwtService.extractJti(jwt);
                 
-                userSessionService.findByUserSessionId(jti).orElseThrow(() -> new DataInvalidException(
+                UserSession userSession = userSessionService.findByUserSessionId(jti).orElseThrow(() -> new DataInvalidException(
                         messages.getMessage("not.authenticate", null, Locale.getDefault()),"user.not.authenticate"));
                 
+                if(userSession.isExpired()) {
+                    throw new VerifyExpirationException(messages.getMessage(
+                            "refreshtoken.expired", null, Locale.getDefault()),"refreshtoken.expired");
+                }
+//                if(userSession.getExpiryDate().isAfter(Instant.now())) {
+//                    filterChain.doFilter(request, response);    
+//                }
                 // create authentication object for next process
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);

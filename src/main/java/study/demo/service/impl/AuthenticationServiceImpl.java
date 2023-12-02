@@ -1,10 +1,12 @@
 package study.demo.service.impl;
 
+import java.time.Instant;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -34,6 +36,9 @@ import study.demo.service.exception.VerifyExpirationException;
 @RequiredArgsConstructor
 @Transactional
 public class AuthenticationServiceImpl implements AuthenticationService {
+    
+    @Value("${app.jwtRefreshExpirationMs}")
+    private Long refreshTokenDurationMs;
 
     private final AuthenticationManager authenticationManager;
 
@@ -65,6 +70,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             userSessionService.save(UserSession.builder()
                     .user(user)
                     .userSessionId(jwtService.extractJti(accessToken))
+                    .expiryDate(Instant.now().plusMillis(refreshTokenDurationMs))
                     .build());
             return new AuthenticationResponseDto(accessToken, refreshToken);
         }
@@ -73,7 +79,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     // using authentication manager to verify user
-    private boolean authenticate(String username, String password) throws Exception {
+    public boolean authenticate(String username, String password) throws Exception {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         } catch (BadCredentialsException e) {
@@ -99,11 +105,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return userSessionService.findByUserSessionId(jti)
                 .map(UserSession::getUser)
                 .map(user -> {
-            userSessionService.verifyExpiration(jti); // set time for refreshtoken -----
+            userSessionService.verifyExpiration(jti);
             String accessToken = jwtService.generateTokenFromUserName(user.getEmail()); // response new access token
                                                                                         // when
             return new AuthenticationResponseDto(accessToken, jwt); // refresh token is valid
-        }).orElseThrow(() -> new VerifyExpirationException(messages.getMessage("refreshtoken.expired", null, null),"refreshtoken.expired"));
+        }).orElseThrow(() -> new VerifyExpirationException(messages.getMessage("refreshtoken.expired", null, Locale.getDefault()),"refreshtoken.expired"));
     }
 
 }

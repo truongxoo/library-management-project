@@ -20,7 +20,7 @@ import study.demo.enums.Constants;
 @Component
 public class FileStorageUtils {
 
-    public String storeFile(MultipartFile file) {
+    public String storeFileCSV(MultipartFile file) {
         Path path = Paths.get(Constants.LOCATION_FILE);
         String fileName = file.getOriginalFilename();
         // checking file type
